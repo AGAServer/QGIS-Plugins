@@ -6,6 +6,6 @@
     <version>1.0</version>
     <qgis_minimum_version>3.0</qgis_minimum_version>
     <author_name>Đoàn Ngọc Ấn</author_name>
-    <download_urlhttps://github.com/AGAServer/QGIS-Plugins/releases/download/v1.0/DoanNgocAnPlugin.zip</download_url>
+    <download_url>https://github.com/AGAServer/QGIS-Plugins/releases/download/v1.0/DoanNgocAnPlugin.zip</download_url>
   </pyqgis_plugin>
 </plugins>
