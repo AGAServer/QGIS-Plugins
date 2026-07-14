@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins>
+  <pyqgis_plugin name="DoanNgocAnPlugin" version="1.0">
+    <description>Công cụ hỗ trợ tiện ích tạo lập và xây dựng bản đồ Lâm Nghiệp.</description>
+    <about>Plugin hỗ trợ tiện ích dành cho anh em kỹ thuật Lâm Nghiệp.</about>
+    <version>1.0</version>
+    <qgis_minimum_version>3.0</qgis_minimum_version>
+    <author_name>Đoàn Ngọc Ấn</author_name>
+    <download_urlhttps://github.com/AGAServer/QGIS-Plugins/releases/download/v1.0/DoanNgocAnPlugin.zip</download_url>
+  </pyqgis_plugin>
+</plugins>
