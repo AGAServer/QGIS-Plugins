@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
-  <pyqgis_plugin name="DoanNgocAnPlugin" version="1.2">
+  <pyqgis_plugin name="DoanNgocAnPlugin" version="1.3">
     <description>Công cụ hỗ trợ tiện ích tạo lập và xây dựng bản đồ Lâm Nghiệp.</description>
     <about><![CDATA[<b>Thông tin tác giả và liên hệ:</b> Plugin được tạo bởi <b>Đoàn Ngọc Ấn</b><br>
 <b>Zalo:</b> 085.652.1139<br>
 <b>Facebook:</b> https://www.facebook.com/NgocAn.Digital.<br><br>
 <b>Miễn trừ trách nhiệm:</b> Plugin chỉ mang tiện ích hỗ trợ cho người dùng với hình thức là tham khảo, người dùng tự chịu trách nhiệm khi sử dụng các nội dung trong công cụ sai với mục đích sử dụng.]]></about>
-    <version>1.2</version>
+    <version>1.3</version>
     <qgis_minimum_version>3.0</qgis_minimum_version>
     <author_name>Đoàn Ngọc Ấn</author_name>
     <tags>lam nghiep, ban do, qgis, vn2000, toa do, forestry, tao vung, tao diem, doanngocanplugin, doanngocan</tags>
