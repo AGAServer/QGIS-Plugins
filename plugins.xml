@@ -10,11 +10,7 @@
     <qgis_minimum_version>3.0</qgis_minimum_version>
     <author_name>Đoàn Ngọc Ấn</author_name>
     <tags>lam nghiep, ban do, qgis, vn2000, toa do, forestry, tao vung, tao diem, doanngocanplugin, doanngocan</tags>
-    
-    <!-- Đã sửa lỗi cú pháp thẻ icon tại đây -->
     <icon>icon.png</icon>
-    
-    <!-- Nếu bạn up bản 1.4, nhớ đổi link file .zip tương ứng nhé -->
     <download_url>https://github.com/AGAServer/QGIS-Plugins/releases/download/v1.0/DoanNgocAnPlugin.zip</download_url>
   </pyqgis_plugin>
 </plugins>
