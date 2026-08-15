@@ -11,6 +11,6 @@
     <author_name>Đoàn Ngọc Ấn</author_name>
     <tags>lam nghiep, ban do, qgis, vn2000, toa do, forestry, tao vung, tao diem, doanngocanplugin, doanngocan</tags>
     <icon>icon.png</icon>
-    <download_url>https://github.com/AGAServer/QGIS-Plugins/releases/download/v1.7/DoanNgocAnPlugin.zip</download_url>
+    <download_url>https://github.com/AGAServer/QGIS-Plugins/releases/download/v1.0/DoanNgocAnPlugin.zip</download_url>
   </pyqgis_plugin>
 </plugins>
