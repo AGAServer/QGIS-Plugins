@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
-  <pyqgis_plugin name="DoanNgocAnPlugin" version="2.0>
+  <pyqgis_plugin name="DoanNgocAnPlugin" version="2.0">
     <description>DoanNgocAnPlugin | Công cụ hỗ trợ tiện ích Kỹ Thuật Lâm Nghiệp.</description>
     <about><![CDATA[<b>Thông tin tác giả và liên hệ:</b> Plugin được tạo bởi <b>Đoàn Ngọc Ấn</b><br>
 <b>Zalo:</b> 085.652.1139<br>
