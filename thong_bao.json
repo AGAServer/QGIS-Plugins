@@ -1,44 +1,14 @@
 [
   {
-    "id": 202608267, 
-    "title": "BẢO TRÌ MÁY CHỦ", 
-    "content": "TEST CHỨC NĂNG THÔNG BÁO 3", 
+    "id": 202608271, 
+    "title": "Chính thức hoạt động bản V2.1 & Cập nhật chính sách mới", 
+    "content": "Chào các anh/chị đồng nghiệp đang sử dụng DoanNgocAn Plugin!<br><br>Sau một thời gian phát hành bản thử nghiệm, nhờ sự ủng hộ và góp ý nhiệt tình từ mọi người, bộ công cụ đã liên tục được tối ưu và ngày càng hoàn thiện hơn.<br><br>Để có thêm kinh phí duy trì hệ thống máy chủ và tiếp tục phát triển các tính năng mới phục vụ công tác ngành lâm nghiệp, từ ngày <b>01/09/2026</b>, Ấn xin phép được thu một khoản phí nhỏ là <b>50.000 vnđ/tháng</b> (coi như anh em mời Ấn một ly cà phê động lực nhé ^^).<br><br>Chi tiết hơn anh/chị có thể xem tại phần <b>[CHÍNH SÁCH]</b> trên thanh Menu chính.<br><br>Xin chân thành cảm ơn sự đồng hành của mọi người!<br><i>- Đoàn Ngọc Ấn -</i>", 
     "date": "26/08/2026"
   },
   {
-    "id": 202608266, 
-    "title": "BẢO TRÌ MÁY CHỦ", 
-    "content": "TEST CHỨC NĂNG THÔNG BÁO 2", 
-    "date": "26/08/2026"
-  },
-  {
-    "id": 202608265, 
-    "title": "BẢO TRÌ MÁY CHỦ", 
-    "content": "TEST CHỨC NĂNG THÔNG BÁO 1", 
-    "date": "26/08/2026"
-  },
-  {
-    "id": 202608264, 
-    "title": "BẢO TRÌ MÁY CHỦ", 
-    "content": "TEST CHỨC NĂNG THÔNG BÁO", 
-    "date": "26/08/2026"
-  },
-  {
-    "id": 202608263, 
-    "title": "BẢO TRÌ MÁY CHỦ", 
-    "content": "Hệ thống sẽ bảo trì trong vòng 30p nữa", 
-    "date": "26/08/2026"
-  },
-  {
-    "id": 202608262, 
-    "title": "Ra mắt công cụ Tìm lô đa điều kiện siêu tốc", 
-    "content": "Chào mừng bạn đến với bản cập nhật tháng 8! Công cụ 'a35_timlo' đã được nâng cấp với khả năng truy xuất dữ liệu động. Hỗ trợ tùy chỉnh mọi trường dữ liệu với tốc độ xử lý siêu mượt.\n\nĐừng quên gia hạn Key để sử dụng tính năng này nhé. (MBBank: 1000108018888 - Đoàn Ngọc Ấn)", 
-    "date": "26/08/2026"
-  },
-  {
-    "id": 202608261, 
-    "title": "Bảo trì nâng cấp Server API", 
-    "content": "Hệ thống máy chủ kiểm tra bản quyền sẽ được bảo trì định kỳ từ 22:00 đến 23:30 ngày 15/08. Trong thời gian này một số tính năng kết nối mạng có thể bị gián đoạn. Mong các bạn thông cảm!", 
-    "date": "15/08/2026"
+    "id": 202606221, 
+    "title": "Kỷ niệm ra mắt phiên bản thử nghiệm V1.0", 
+    "content": "Ngày 22/06/2026 đánh dấu cột mốc đầu tiên DoanNgocAn Plugin chính thức ra mắt cộng đồng.<br><br>Từ những giao diện và tính năng cốt lõi đơn sơ nhất, đây chính là viên gạch nền móng khởi nguồn cho sự phát triển mạnh mẽ của các phiên bản nâng cấp sau này!", 
+    "date": "22/06/2026"
   }
 ]
