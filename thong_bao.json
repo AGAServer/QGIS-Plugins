@@ -1,18 +1,18 @@
 [
   {
-    "id": 3, 
+    "id": 202608263, 
     "title": "BẢO TRÌ MÁY CHỦ", 
     "content": "Hệ thống sẽ bảo trì trong vòng 30p nữa", 
     "date": "26/08/2026"
   },
   {
-    "id": 2, 
+    "id": 202608262, 
     "title": "Ra mắt công cụ Tìm lô đa điều kiện siêu tốc", 
     "content": "Chào mừng bạn đến với bản cập nhật tháng 8! Công cụ 'a35_timlo' đã được nâng cấp với khả năng truy xuất dữ liệu động. Hỗ trợ tùy chỉnh mọi trường dữ liệu với tốc độ xử lý siêu mượt.\n\nĐừng quên gia hạn Key để sử dụng tính năng này nhé. (MBBank: 1000108018888 - Đoàn Ngọc Ấn)", 
     "date": "26/08/2026"
   },
   {
-    "id": 1, 
+    "id": 202608261, 
     "title": "Bảo trì nâng cấp Server API", 
     "content": "Hệ thống máy chủ kiểm tra bản quyền sẽ được bảo trì định kỳ từ 22:00 đến 23:30 ngày 15/08. Trong thời gian này một số tính năng kết nối mạng có thể bị gián đoạn. Mong các bạn thông cảm!", 
     "date": "15/08/2026"
