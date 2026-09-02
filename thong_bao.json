@@ -1,5 +1,11 @@
 [
   {
+    "id": 202609021, 
+    "title": "Cập nhật phiên bản V2.3 mới", 
+    "content": "Chào các anh/chị!.<br>Một số tính năng mới được phát triển tại phiên bản v2.3 như sau:<br>- Vá và sửa lỗi bảo mật đã biết. <br>- Thêm tiện ích Tìm kiếm và Select lô rừng.<br>- Thêm tiện ích Chuyển đổi Font chữ.<br>- Thêm chức năng BÁO LỖI - HỎI ĐÁP.<br><br>Xin chân thành cảm ơn sự đồng hành của anh/chị!<br><i>- Đoàn Ngọc Ấn -</i>", 
+    "date": "02/09/2026"
+  },
+  {
     "id": 202608281, 
     "title": "Thông báo lỗi phát sinh khi sử dụng Plugin về bảo mật", 
     "content": "Chào các anh/chị!.<br>Do một số cơ chế bảo mật Plugin nên hệ thống tạm thời có đôi lúc phát sinh lỗi bản quyền sai (mặc dù anh chị đã có key sử dụng).<br>Bản cập nhật mới sẽ update và khắc phục lỗi này vào ngày 2/9 hoặc sớm hơn dự kiến.<br><br>Xin chân thành cảm ơn sự đồng hành của anh/chị!<br><i>- Đoàn Ngọc Ấn -</i>", 
