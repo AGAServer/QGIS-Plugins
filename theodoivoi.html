@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trạm Phát Tín Hiệu Nài Voi</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #EAF3EC; text-align: center; padding: 20px; color: #1B4D3E; }
+        .box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; font-weight: bold; text-align: center; font-size: 16px; color: #D35400;}
+        button { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 10px; }
+        #btnStart { background-color: #27AE60; }
+        #btnStop { background-color: #E74C3C; display: none; }
+        #status { margin-top: 15px; font-size: 14px; color: #7F8C8D; font-weight: bold; }
+        #coords { margin-top: 10px; font-size: 14px; font-weight: bold; color: #34495E; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🐘 Thiết Bị Phát Vị Trí</h2>
+        <p style="font-size: 13px; color: #7F8C8D;">Vui lòng bật tính năng Vị trí (GPS) trên điện thoại trước khi bắt đầu.</p>
+        <input type="text" id="deviceId" placeholder="Nhập Mã Nài Voi (VD: LAK_01)">
+        <button id="btnStart" onclick="startTracking()">▶ BẮT ĐẦU PHÁT TÍN HIỆU</button>
+        <button id="btnStop" onclick="stopTracking()">⏹ DỪNG PHÁT TÍN HIỆU</button>
+        <div id="status">Trạng thái: Đang chờ...</div>
+        <div id="coords"></div>
+    </div>
+
+    <script>
+        // BẠN DÁN LINK GOOGLE APPS SCRIPT VỪA COPY VÀO ĐÂY
+        const API_URL = "https://script.google.com/macros/s/AKfycbzgkTwcVP5rVifEz3SsmsGCvb2ttczeR3yh3LvTW_69VHOHfIMk-38mln3lWfGruELe/exec"; 
+        let watchId = null;
+
+        function startTracking() {
+            const deviceId = document.getElementById("deviceId").value.trim();
+            if (!deviceId) { alert("Vui lòng nhập Mã Nài Voi!"); return; }
+            
+            if (!navigator.geolocation) {
+                alert("Điện thoại của bạn không hỗ trợ định vị GPS.");
+                return;
+            }
+
+            document.getElementById("btnStart").style.display = "none";
+            document.getElementById("btnStop").style.display = "block";
+            document.getElementById("deviceId").disabled = true;
+            document.getElementById("status").innerHTML = "Trạng thái: 🟢 Đang phát tín hiệu GPS...";
+            document.getElementById("status").style.color = "#27AE60";
+
+            // Bật tính năng theo dõi GPS liên tục của điện thoại
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    document.getElementById("coords").innerHTML = `📍 Vĩ độ: ${lat.toFixed(6)}<br>📍 Kinh độ: ${lon.toFixed(6)}`;
+                    
+                    // Bắn dữ liệu ngầm lên Google Server
+                    fetch(`${API_URL}?action=update_location&device_id=${deviceId}&lat=${lat}&lon=${lon}`)
+                    .catch(error => console.error("Lỗi mạng:", error));
+                },
+                (error) => {
+                    document.getElementById("status").innerHTML = "❌ Lỗi: Bạn chưa cấp quyền sử dụng Vị trí cho trình duyệt!";
+                    document.getElementById("status").style.color = "#E74C3C";
+                },
+                { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
+            );
+        }
+
+        function stopTracking() {
+            if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+            document.getElementById("btnStart").style.display = "block";
+            document.getElementById("btnStop").style.display = "none";
+            document.getElementById("deviceId").disabled = false;
+            document.getElementById("status").innerHTML = "Trạng thái: 🔴 Đã dừng phát tín hiệu.";
+            document.getElementById("status").style.color = "#E74C3C";
+            document.getElementById("coords").innerHTML = "";
+        }
+    </script>
+</body>
+</html>
