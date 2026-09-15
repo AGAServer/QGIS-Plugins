@@ -2,7 +2,17 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Trạm Voi">
+    <meta name="theme-color" content="#27AE60">
+
+    <!-- Bạn có thể thay link ảnh icon dưới đây bằng logo của bạn -->
+    <link rel="icon" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/3075/3075908.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3075/3075908.png">
+
     <title>Trạm Phát Tín Hiệu Nài Voi</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #EAF3EC; text-align: center; padding: 20px; color: #1B4D3E; }
@@ -27,8 +37,9 @@
     </div>
 
     <script>
-        // BẠN DÁN LINK GOOGLE APPS SCRIPT VỪA COPY VÀO ĐÂY
+        // BẠN DÁN LINK GOOGLE APPS SCRIPT VỪA LẤY Ở BƯỚC 1 VÀO ĐÂY:
         const API_URL = "https://script.google.com/macros/s/AKfycbzgkTwcVP5rVifEz3SsmsGCvb2ttczeR3yh3LvTW_69VHOHfIMk-38mln3lWfGruELe/exec"; 
+        
         let watchId = null;
 
         function startTracking() {
@@ -46,20 +57,19 @@
             document.getElementById("status").innerHTML = "Trạng thái: 🟢 Đang phát tín hiệu GPS...";
             document.getElementById("status").style.color = "#27AE60";
 
-            // Bật tính năng theo dõi GPS liên tục của điện thoại
             watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
                     document.getElementById("coords").innerHTML = `📍 Vĩ độ: ${lat.toFixed(6)}<br>📍 Kinh độ: ${lon.toFixed(6)}`;
                     
-                    // Bắn dữ liệu ngầm lên Google Server
                     fetch(`${API_URL}?action=update_location&device_id=${deviceId}&lat=${lat}&lon=${lon}`)
                     .catch(error => console.error("Lỗi mạng:", error));
                 },
                 (error) => {
-                    document.getElementById("status").innerHTML = "❌ Lỗi: Bạn chưa cấp quyền sử dụng Vị trí cho trình duyệt!";
+                    document.getElementById("status").innerHTML = "❌ Lỗi: Chưa cấp quyền Vị trí (GPS)!";
                     document.getElementById("status").style.color = "#E74C3C";
+                    stopTracking();
                 },
                 { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
             );
