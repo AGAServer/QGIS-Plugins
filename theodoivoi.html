@@ -4,75 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Trạm Voi">
     <meta name="theme-color" content="#27AE60">
-
-    <!-- Bạn có thể thay link ảnh icon dưới đây bằng logo của bạn -->
-    <link rel="icon" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/3075/3075908.png">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3075/3075908.png">
-
     <title>Trạm Phát Tín Hiệu Nài Voi</title>
+    
+    <!-- Thư viện Bản đồ Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <style>
-        body { font-family: Arial, sans-serif; background-color: #EAF3EC; text-align: center; padding: 20px; color: #1B4D3E; }
-        .box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
-        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; font-weight: bold; text-align: center; font-size: 16px; color: #D35400;}
-        button { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 10px; }
+        body { font-family: Arial, sans-serif; background-color: #EAF3EC; margin: 0; padding: 0; color: #1B4D3E; display: flex; flex-direction: column; height: 100vh;}
+        .controls { background: white; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 1000;}
+        input { width: 90%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; font-weight: bold; text-align: center; font-size: 16px;}
+        button { width: 100%; padding: 12px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 5px; }
         #btnStart { background-color: #27AE60; }
         #btnStop { background-color: #E74C3C; display: none; }
-        #status { margin-top: 15px; font-size: 14px; color: #7F8C8D; font-weight: bold; }
-        #coords { margin-top: 10px; font-size: 14px; font-weight: bold; color: #34495E; line-height: 1.5; }
+        #status { font-size: 13px; color: #7F8C8D; font-weight: bold; margin-top: 5px; text-align: center;}
+        #map { flex-grow: 1; width: 100%; } /* Bản đồ chiếm phần không gian còn lại */
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>🐘 Thiết Bị Phát Vị Trí</h2>
-        <p style="font-size: 13px; color: #7F8C8D;">Vui lòng bật tính năng Vị trí (GPS) trên điện thoại trước khi bắt đầu.</p>
+    <div class="controls">
+        <h3 style="margin: 0 0 10px 0; text-align: center;">🐘 Radar Voi (Google Earth)</h3>
         <input type="text" id="deviceId" placeholder="Nhập Mã Nài Voi (VD: LAK_01)">
-        <button id="btnStart" onclick="startTracking()">▶ BẮT ĐẦU PHÁT TÍN HIỆU</button>
-        <button id="btnStop" onclick="stopTracking()">⏹ DỪNG PHÁT TÍN HIỆU</button>
+        <button id="btnStart" onclick="startTracking()">▶ BẬT ĐỊNH VỊ & CHIA SẺ</button>
+        <button id="btnStop" onclick="stopTracking()">⏹ DỪNG CHIA SẺ</button>
         <div id="status">Trạng thái: Đang chờ...</div>
-        <div id="coords"></div>
     </div>
+    
+    <!-- Khung chứa bản đồ -->
+    <div id="map"></div>
 
     <script>
-        // BẠN DÁN LINK GOOGLE APPS SCRIPT VỪA LẤY Ở BƯỚC 1 VÀO ĐÂY:
+        // --- ĐIỀN LINK API CỦA BẠN VÀO ĐÂY ---
         const API_URL = "https://script.google.com/macros/s/AKfycbzgkTwcVP5rVifEz3SsmsGCvb2ttczeR3yh3LvTW_69VHOHfIMk-38mln3lWfGruELe/exec"; 
         
         let watchId = null;
+        let map, myMarker;
+        let otherMarkers = {}; // Lưu trữ marker của nài voi khác
+
+        // Khởi tạo bản đồ Google Satellite
+        map = L.map('map').setView([12.345, 108.123], 13);
+        L.tileLayer('http://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}', {
+            maxZoom: 20, attribution: '© Google Satellite'
+        }).addTo(map);
 
         function startTracking() {
             const deviceId = document.getElementById("deviceId").value.trim();
-            if (!deviceId) { alert("Vui lòng nhập Mã Nài Voi!"); return; }
-            
-            if (!navigator.geolocation) {
-                alert("Điện thoại của bạn không hỗ trợ định vị GPS.");
-                return;
-            }
+            if (!deviceId) { alert("Vui lòng nhập Mã!"); return; }
+            if (!navigator.geolocation) { alert("Điện thoại không hỗ trợ GPS."); return; }
 
             document.getElementById("btnStart").style.display = "none";
             document.getElementById("btnStop").style.display = "block";
             document.getElementById("deviceId").disabled = true;
-            document.getElementById("status").innerHTML = "Trạng thái: 🟢 Đang phát tín hiệu GPS...";
+            document.getElementById("status").innerHTML = "🟢 Đang phát tín hiệu GPS & Quét Radar...";
             document.getElementById("status").style.color = "#27AE60";
 
+            // 1. Gửi vị trí của mình liên tục
             watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
-                    document.getElementById("coords").innerHTML = `📍 Vĩ độ: ${lat.toFixed(6)}<br>📍 Kinh độ: ${lon.toFixed(6)}`;
                     
-                    fetch(`${API_URL}?action=update_location&device_id=${deviceId}&lat=${lat}&lon=${lon}`)
-                    .catch(error => console.error("Lỗi mạng:", error));
+                    // Vẽ vị trí bản thân (Chấm Xanh)
+                    if (!myMarker) {
+                        myMarker = L.circleMarker([lat, lon], {color: '#3498DB', radius: 8, fillOpacity: 1}).addTo(map);
+                        myMarker.bindPopup("<b>Bạn ở đây</b>");
+                        map.setView([lat, lon], 16);
+                    } else {
+                        myMarker.setLatLng([lat, lon]);
+                    }
+                    
+                    fetch(`${API_URL}?action=update_location&device_id=${deviceId}&lat=${lat}&lon=${lon}`);
                 },
-                (error) => {
-                    document.getElementById("status").innerHTML = "❌ Lỗi: Chưa cấp quyền Vị trí (GPS)!";
-                    document.getElementById("status").style.color = "#E74C3C";
-                    stopTracking();
-                },
+                (error) => { document.getElementById("status").innerHTML = "❌ Lỗi GPS!"; },
                 { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
             );
+
+            // 2. Kéo vị trí của đồng đội về (Mỗi 10 giây)
+            setInterval(() => fetchAllLocations(deviceId), 10000);
+            fetchAllLocations(deviceId);
+        }
+
+        function fetchAllLocations(myId) {
+            fetch(`${API_URL}?action=get_all`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success") {
+                    data.data.forEach(voi => {
+                        if (voi.id !== myId) { // Không vẽ lại chính mình
+                            if(otherMarkers[voi.id]) {
+                                otherMarkers[voi.id].setLatLng([voi.lat, voi.lon]);
+                            } else {
+                                // Vẽ đồng đội (Chấm Đỏ)
+                                otherMarkers[voi.id] = L.circleMarker([voi.lat, voi.lon], {color: '#E74C3C', radius: 6, fillOpacity: 0.8}).addTo(map);
+                                otherMarkers[voi.id].bindTooltip(voi.id, {permanent: true, direction: 'right'});
+                            }
+                        }
+                    });
+                }
+            });
         }
 
         function stopTracking() {
@@ -80,9 +110,8 @@
             document.getElementById("btnStart").style.display = "block";
             document.getElementById("btnStop").style.display = "none";
             document.getElementById("deviceId").disabled = false;
-            document.getElementById("status").innerHTML = "Trạng thái: 🔴 Đã dừng phát tín hiệu.";
+            document.getElementById("status").innerHTML = "🔴 Đã dừng chia sẻ.";
             document.getElementById("status").style.color = "#E74C3C";
-            document.getElementById("coords").innerHTML = "";
         }
     </script>
 </body>
