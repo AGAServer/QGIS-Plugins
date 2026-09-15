@@ -7,7 +7,6 @@
     <meta name="theme-color" content="#27AE60">
     <title>Trạm Phát Tín Hiệu Nài Voi</title>
     
-    <!-- Thư viện Bản đồ Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -18,31 +17,35 @@
         button { width: 100%; padding: 12px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 5px; }
         #btnStart { background-color: #27AE60; }
         #btnStop { background-color: #E74C3C; display: none; }
+        #btnCamera { background-color: #8E44AD; display: none; margin-top: 10px; }
         #status { font-size: 13px; color: #7F8C8D; font-weight: bold; margin-top: 5px; text-align: center;}
-        #map { flex-grow: 1; width: 100%; } /* Bản đồ chiếm phần không gian còn lại */
+        #map { flex-grow: 1; width: 100%; } 
+        #cameraBox { width: 100%; height: 350px; display: none; border: none; }
     </style>
 </head>
 <body>
     <div class="controls">
-        <h3 style="margin: 0 0 10px 0; text-align: center;">🐘 Radar Voi (Google Earth)</h3>
-        <input type="text" id="deviceId" placeholder="Nhập Mã Nài Voi (VD: LAK_01)">
+        <h3 style="margin: 0 0 10px 0; text-align: center;">🐘 Radar Voi (Bản có Camera)</h3>
+        <input type="text" id="deviceId" placeholder="Nhập Mã (VD: LAK_01)">
         <button id="btnStart" onclick="startTracking()">▶ BẬT ĐỊNH VỊ & CHIA SẺ</button>
+        <button id="btnCamera" onclick="startCamera()">🎥 PHÁT CAMERA TRỰC TIẾP</button>
         <button id="btnStop" onclick="stopTracking()">⏹ DỪNG CHIA SẺ</button>
         <div id="status">Trạng thái: Đang chờ...</div>
     </div>
     
-    <!-- Khung chứa bản đồ -->
+    <!-- Khung chứa Camera trực tiếp -->
+    <iframe id="cameraBox" allow="camera; microphone; fullscreen"></iframe>
+    
     <div id="map"></div>
 
     <script>
-        // --- ĐIỀN LINK API CỦA BẠN VÀO ĐÂY ---
+        // --- LINK API CHÍNH THỨC CỦA HỆ THỐNG ---
         const API_URL = "https://script.google.com/macros/s/AKfycbzgkTwcVP5rVifEz3SsmsGCvb2ttczeR3yh3LvTW_69VHOHfIMk-38mln3lWfGruELe/exec"; 
         
         let watchId = null;
         let map, myMarker;
-        let otherMarkers = {}; // Lưu trữ marker của nài voi khác
+        let otherMarkers = {}; 
 
-        // Khởi tạo bản đồ Google Satellite
         map = L.map('map').setView([12.345, 108.123], 13);
         L.tileLayer('http://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}', {
             maxZoom: 20, attribution: '© Google Satellite'
@@ -55,17 +58,16 @@
 
             document.getElementById("btnStart").style.display = "none";
             document.getElementById("btnStop").style.display = "block";
+            document.getElementById("btnCamera").style.display = "block";
             document.getElementById("deviceId").disabled = true;
             document.getElementById("status").innerHTML = "🟢 Đang phát tín hiệu GPS & Quét Radar...";
             document.getElementById("status").style.color = "#27AE60";
 
-            // 1. Gửi vị trí của mình liên tục
             watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
                     
-                    // Vẽ vị trí bản thân (Chấm Xanh)
                     if (!myMarker) {
                         myMarker = L.circleMarker([lat, lon], {color: '#3498DB', radius: 8, fillOpacity: 1}).addTo(map);
                         myMarker.bindPopup("<b>Bạn ở đây</b>");
@@ -73,16 +75,28 @@
                     } else {
                         myMarker.setLatLng([lat, lon]);
                     }
-                    
                     fetch(`${API_URL}?action=update_location&device_id=${deviceId}&lat=${lat}&lon=${lon}`);
                 },
                 (error) => { document.getElementById("status").innerHTML = "❌ Lỗi GPS!"; },
                 { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
             );
 
-            // 2. Kéo vị trí của đồng đội về (Mỗi 10 giây)
             setInterval(() => fetchAllLocations(deviceId), 10000);
             fetchAllLocations(deviceId);
+        }
+
+        function startCamera() {
+            const deviceId = document.getElementById("deviceId").value.trim();
+            const camBox = document.getElementById("cameraBox");
+            const mapBox = document.getElementById("map");
+            
+            // Ẩn map, nhường chỗ cho Camera. Link kết nối bảo mật theo đúng ID Nài voi
+            mapBox.style.display = "none";
+            camBox.style.display = "block";
+            camBox.src = `https://meet.jit.si/DoanNgocAn_TramVoi_${deviceId}#config.prejoinPageEnabled=false`;
+            
+            document.getElementById("btnCamera").innerHTML = "🔴 ĐANG PHÁT SÓNG TRỰC TIẾP";
+            document.getElementById("btnCamera").style.backgroundColor = "#E74C3C";
         }
 
         function fetchAllLocations(myId) {
@@ -91,11 +105,10 @@
             .then(data => {
                 if(data.status === "success") {
                     data.data.forEach(voi => {
-                        if (voi.id !== myId) { // Không vẽ lại chính mình
+                        if (voi.id !== myId) { 
                             if(otherMarkers[voi.id]) {
                                 otherMarkers[voi.id].setLatLng([voi.lat, voi.lon]);
                             } else {
-                                // Vẽ đồng đội (Chấm Đỏ)
                                 otherMarkers[voi.id] = L.circleMarker([voi.lat, voi.lon], {color: '#E74C3C', radius: 6, fillOpacity: 0.8}).addTo(map);
                                 otherMarkers[voi.id].bindTooltip(voi.id, {permanent: true, direction: 'right'});
                             }
@@ -109,7 +122,16 @@
             if (watchId !== null) navigator.geolocation.clearWatch(watchId);
             document.getElementById("btnStart").style.display = "block";
             document.getElementById("btnStop").style.display = "none";
+            document.getElementById("btnCamera").style.display = "none";
             document.getElementById("deviceId").disabled = false;
+            
+            // Tắt Camera
+            document.getElementById("cameraBox").src = "";
+            document.getElementById("cameraBox").style.display = "none";
+            document.getElementById("map").style.display = "block";
+            document.getElementById("btnCamera").innerHTML = "🎥 PHÁT CAMERA TRỰC TIẾP";
+            document.getElementById("btnCamera").style.backgroundColor = "#8E44AD";
+            
             document.getElementById("status").innerHTML = "🔴 Đã dừng chia sẻ.";
             document.getElementById("status").style.color = "#E74C3C";
         }
