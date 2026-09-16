@@ -9,7 +9,6 @@
     <meta name="theme-color" content="#27AE60">
     <title>Trạm Phát Tín Hiệu & Dò Tìm Voi</title>
     
-    <!-- Link Manifest Ảo tạo PWA -->
     <link rel="manifest" id="manifest-link">
     <link rel="icon" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/3075/3075908.png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3075/3075908.png">
@@ -21,12 +20,20 @@
     <style>
         body { font-family: Arial, sans-serif; background-color: #EAF3EC; margin: 0; padding: 0; color: #1B4D3E; display: flex; flex-direction: column; height: 100vh;}
         
-        /* KHU VỰC CHỌN VAI TRÒ */
-        #roleSelection { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #fff; z-index: 9999; padding: 20px;}
-        .role-btn { width: 100%; max-width: 350px; padding: 18px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        /* KHU VỰC CHỌN VAI TRÒ (ĐÃ THÊM ẢNH NỀN TÙY CHỈNH) */
+        #roleSelection { 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            height: 100vh; 
+            /* BẠN THAY LINK ẢNH CỦA BẠN VÀO DÒNG BÊN DƯỚI NÀY NHÉ: */
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?q=80&w=2074&auto=format&fit=crop') center center / cover no-repeat;
+            z-index: 9999; padding: 20px;
+        }
+        
+        .role-btn { width: 100%; max-width: 350px; padding: 18px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.1s;}
+        .role-btn:active { transform: scale(0.98); }
         .btn-nai { background-color: #27AE60; }
         .btn-guide { background-color: #2980B9; }
-        .btn-install { background-color: #F39C12; margin-top: 20px; border: 2px dashed #E67E22; color: #fff;}
+        .btn-install { background-color: rgba(243, 156, 18, 0.9); margin-top: 20px; border: 2px dashed #fff; color: #fff;}
 
         /* BẢNG ĐIỀU KHIỂN CHUNG */
         .controls { background: white; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 1000;}
@@ -49,19 +56,18 @@
 
     <!-- MÀN HÌNH 1: CHỌN VAI TRÒ -->
     <div id="roleSelection">
-        <h2 style="color: #27AE60;">🐘 HỆ THỐNG LẮK TOUR</h2>
-        <p style="color: #7F8C8D; text-align: center; margin-bottom: 20px;">Vui lòng chọn vai trò của bạn để bắt đầu.</p>
+        <!-- Tiêu đề được thiết kế lại để nổi bật trên nền ảnh -->
+        <h2 style="color: #2ECC71; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); font-size: 28px; margin-bottom: 10px;">🐘 HỆ THỐNG LẮK TOUR</h2>
+        <p style="color: #ECF0F1; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); text-align: center; margin-bottom: 30px; font-size: 15px;">Vui lòng chọn vai trò của bạn để bắt đầu.</p>
         
         <button class="role-btn btn-nai" onclick="selectRole('nai')">🐘 TÔI LÀ NÀI VOI</button>
         <button class="role-btn btn-guide" onclick="selectRole('guide')">🧭 TÔI LÀ HƯỚNG DẪN VIÊN</button>
         
-        <!-- NÚT CÀI ĐẶT APP -->
         <button class="role-btn btn-install" id="btnInstall" onclick="installApp()">📱 CÀI ĐẶT RA MÀN HÌNH CHÍNH</button>
     </div>
 
     <!-- MÀN HÌNH 2: BẢNG ĐIỀU KHIỂN -->
     <div class="controls" id="mainControls" style="display: none;">
-        <!-- NÚT QUAY LẠI -->
         <button class="btn-back" onclick="goBack()">🔙 QUAY LẠI CHỌN VAI TRÒ</button>
         
         <h3 id="panelTitle" style="margin: 0 0 10px 0; text-align: center;">...</h3>
@@ -82,7 +88,7 @@
         <div id="status">Trạng thái: Đang chờ...</div>
     </div>
     
-    <!-- KHUNG HIỂN THỊ LA BÀN & KHOẢNG CÁCH CHO HDV -->
+    <!-- KHUNG HIỂN THỊ LA BÀN & KHOẢNG CÁCH -->
     <div id="guideInfo">
         <div>Khoảng cách đến Voi: <b id="distanceText" style="color: #F1C40F;">Đang tính...</b></div>
         <div id="compassBox">
@@ -99,9 +105,6 @@
     <div id="map"></div>
 
     <script>
-        // ==========================================
-        // CẤU HÌNH PWA CÀI ĐẶT APP 
-        // ==========================================
         const manifest = {
             "name": "Trạm Voi Lắk",
             "short_name": "Trạm Voi",
@@ -148,9 +151,6 @@
             }
         }
 
-        // ==========================================
-        // CÁC CHỨC NĂNG CHÍNH CỦA BẢN ĐỒ
-        // ==========================================
         const API_URL = "https://script.google.com/macros/s/AKfycbzgkTwcVP5rVifEz3SsmsGCvb2ttczeR3yh3LvTW_69VHOHfIMk-38mln3lWfGruELe/exec"; 
         
         let currentRole = "";
@@ -160,8 +160,6 @@
         let routingLine = null;
         let fetchInterval = null;
         let myLat = null, myLon = null, targetLat = null, targetLon = null;
-        
-        // BIẾN QUẢN LÝ CHỐNG TẮT MÀN HÌNH
         let wakeLock = null;
 
         map = L.map('map').setView([12.345, 108.123], 13);
@@ -169,7 +167,6 @@
             maxZoom: 20, attribution: '© Google Satellite'
         }).addTo(map);
 
-        // HÀM YÊU CẦU GIỮ SÁNG MÀN HÌNH
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) {
@@ -180,14 +177,12 @@
             }
         }
 
-        // TỰ ĐỘNG BẬT LẠI WAKE LOCK NẾU NGƯỜI DÙNG ẨN/MỞ LẠI APP
         document.addEventListener('visibilitychange', async () => {
             if (wakeLock !== null && document.visibilityState === 'visible') {
                 requestWakeLock();
             }
         });
 
-        // HÀM CHỌN VAI TRÒ
         function selectRole(role) {
             currentRole = role;
             document.getElementById("roleSelection").style.display = "none";
@@ -210,7 +205,6 @@
             }
         }
 
-        // HÀM QUAY LẠI MÀN HÌNH CHÍNH
         function goBack() {
             stopTracking();
             document.getElementById("mainControls").style.display = "none";
@@ -222,15 +216,11 @@
             currentRole = "";
         }
 
-        // ==========================================
-        // CHỨC NĂNG CỦA NÀI VOI
-        // ==========================================
         function startTrackingNai() {
             const deviceId = document.getElementById("deviceId").value.trim();
             if (!deviceId) { alert("Vui lòng nhập Mã!"); return; }
             if (!navigator.geolocation) { alert("Điện thoại không hỗ trợ GPS."); return; }
 
-            // Bật chống tắt màn hình
             requestWakeLock();
 
             document.getElementById("btnStartNai").style.display = "none";
@@ -269,9 +259,6 @@
             document.getElementById("btnCamera").style.backgroundColor = "#E74C3C";
         }
 
-        // ==========================================
-        // CHỨC NĂNG CỦA HƯỚNG DẪN VIÊN
-        // ==========================================
         function startTrackingGuide() {
             const targetId = document.getElementById("deviceId").value.trim();
             if (!targetId) { alert("Vui lòng nhập Mã Nài Voi cần tìm!"); return; }
@@ -328,7 +315,6 @@
                             targetLat = parseFloat(voi.lat);
                             targetLon = parseFloat(voi.lon);
                             
-                            // Vá lỗi số bị mất dấu phẩy do Google Sheets
                             while(targetLat > 90 || targetLat < -90) targetLat /= 10.0;
                             while(targetLon > 180 || targetLon < -180) targetLon /= 10.0;
                             
@@ -381,11 +367,7 @@
             document.getElementById("compassArrow").style.transform = `rotate(${arrowRotation}deg)`;
         }
 
-        // ==========================================
-        // DỪNG MỌI HOẠT ĐỘNG
-        // ==========================================
         function stopTracking() {
-            // Tắt Wake Lock
             if (wakeLock !== null) {
                 wakeLock.release().then(() => { wakeLock = null; });
             }
