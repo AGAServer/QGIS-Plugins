@@ -20,12 +20,12 @@
     <style>
         body { font-family: Arial, sans-serif; background-color: #EAF3EC; margin: 0; padding: 0; color: #1B4D3E; display: flex; flex-direction: column; height: 100vh;}
         
-        /* KHU VỰC CHỌN VAI TRÒ (ĐÃ THÊM ẢNH NỀN TÙY CHỈNH) */
+        /* KHU VỰC CHỌN VAI TRÒ (SỬ DỤNG ẢNH CỦA BẠN TRÊN GITHUB) */
         #roleSelection { 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             height: 100vh; 
-            /* BẠN THAY LINK ẢNH CỦA BẠN VÀO DÒNG BÊN DƯỚI NÀY NHÉ: */
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://github.com/AGAServer/QGIS-Plugins/blob/main/rungcanhquanholak.png') center center / cover no-repeat;
+            /* Phủ lớp mờ 40% để làm nổi bật nút bấm, kết hợp gọi trực tiếp file ảnh rungcanhquanholak.png */
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('rungcanhquanholak.png') center center / cover no-repeat;
             z-index: 9999; padding: 20px;
         }
         
@@ -33,7 +33,7 @@
         .role-btn:active { transform: scale(0.98); }
         .btn-nai { background-color: #27AE60; }
         .btn-guide { background-color: #2980B9; }
-        .btn-install { background-color: rgba(243, 156, 18, 0.9); margin-top: 20px; border: 2px dashed #fff; color: #fff;}
+        .btn-install { background-color: rgba(243, 156, 18, 0.95); margin-top: 20px; border: 2px dashed #fff; color: #fff;}
 
         /* BẢNG ĐIỀU KHIỂN CHUNG */
         .controls { background: white; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 1000;}
@@ -56,8 +56,7 @@
 
     <!-- MÀN HÌNH 1: CHỌN VAI TRÒ -->
     <div id="roleSelection">
-        <!-- Tiêu đề được thiết kế lại để nổi bật trên nền ảnh -->
-        <h2 style="color: #2ECC71; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); font-size: 28px; margin-bottom: 10px;">🐘 HỆ THỐNG LẮK TOUR</h2>
+        <h2 style="color: #2ECC71; text-shadow: 2px 2px 4px rgba(0,0,0,0.9); font-size: 28px; margin-bottom: 10px; text-align: center;">🐘 HỆ THỐNG LẮK TOUR</h2>
         <p style="color: #ECF0F1; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); text-align: center; margin-bottom: 30px; font-size: 15px;">Vui lòng chọn vai trò của bạn để bắt đầu.</p>
         
         <button class="role-btn btn-nai" onclick="selectRole('nai')">🐘 TÔI LÀ NÀI VOI</button>
@@ -73,14 +72,12 @@
         <h3 id="panelTitle" style="margin: 0 0 10px 0; text-align: center;">...</h3>
         <input type="text" id="deviceId" placeholder="Nhập ID...">
         
-        <!-- Các nút cho Nài Voi -->
         <div id="naiButtons" style="display: none;">
             <button class="action-btn" style="background-color: #27AE60;" id="btnStartNai" onclick="startTrackingNai()">▶ BẬT ĐỊNH VỊ GPS</button>
             <button class="action-btn" style="background-color: #8E44AD;" id="btnCamera" onclick="startCamera()" style="display:none;">🎥 PHÁT CAMERA TRỰC TIẾP</button>
             <button class="action-btn" style="background-color: #E74C3C; display:none;" id="btnStopNai" onclick="stopTracking()">⏹ DỪNG CHIA SẺ</button>
         </div>
 
-        <!-- Các nút cho Hướng Dẫn Viên -->
         <div id="guideButtons" style="display: none;">
             <button class="action-btn" style="background-color: #2980B9;" id="btnStartGuide" onclick="startTrackingGuide()">🧭 TÌM KIẾM NÀI VOI NÀY</button>
             <button class="action-btn" style="background-color: #E74C3C; display:none;" id="btnStopGuide" onclick="stopTracking()">⏹ HỦY TÌM KIẾM</button>
