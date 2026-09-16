@@ -9,7 +9,6 @@
     <meta name="theme-color" content="#27AE60">
     <title>Trạm Phát Tín Hiệu & Dò Tìm Voi</title>
     
-    <!-- Link Manifest Ảo sẽ được tạo bằng JS bên dưới để lừa trình duyệt -->
     <link rel="manifest" id="manifest-link">
     <link rel="icon" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/3075/3075908.png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3075/3075908.png">
@@ -32,6 +31,7 @@
         .controls { background: white; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 1000;}
         input { width: 90%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; font-weight: bold; text-align: center; font-size: 16px;}
         button.action-btn { width: 100%; padding: 12px; font-size: 15px; font-weight: bold; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 5px; }
+        .btn-back { background-color: #BDC3C7; color: #2C3E50; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: bold; margin-bottom: 10px; width: 100%; }
         
         #status { font-size: 13px; color: #7F8C8D; font-weight: bold; margin-top: 5px; text-align: center;}
         #map { flex-grow: 1; width: 100%; display: none; } 
@@ -54,12 +54,14 @@
         <button class="role-btn btn-nai" onclick="selectRole('nai')">🐘 TÔI LÀ NÀI VOI</button>
         <button class="role-btn btn-guide" onclick="selectRole('guide')">🧭 TÔI LÀ HƯỚNG DẪN VIÊN</button>
         
-        <!-- NÚT CÀI ĐẶT APP -->
         <button class="role-btn btn-install" id="btnInstall" onclick="installApp()">📱 CÀI ĐẶT RA MÀN HÌNH CHÍNH</button>
     </div>
 
     <!-- MÀN HÌNH 2: BẢNG ĐIỀU KHIỂN -->
     <div class="controls" id="mainControls" style="display: none;">
+        <!-- NÚT QUAY LẠI -->
+        <button class="btn-back" onclick="goBack()">🔙 QUAY LẠI CHỌN VAI TRÒ</button>
+        
         <h3 id="panelTitle" style="margin: 0 0 10px 0; text-align: center;">...</h3>
         <input type="text" id="deviceId" placeholder="Nhập ID...">
         
@@ -95,9 +97,6 @@
     <div id="map"></div>
 
     <script>
-        // ==========================================
-        // CẤU HÌNH PWA ĐỂ CÀI ĐẶT APP 
-        // ==========================================
         const manifest = {
             "name": "Trạm Voi Lắk",
             "short_name": "Trạm Voi",
@@ -114,30 +113,23 @@
         const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
         document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
 
-        // Đăng ký Service Worker Ảo
         if ('serviceWorker' in navigator) {
             const swCode = `self.addEventListener('fetch', function(e) {});`;
             const swBlob = new Blob([swCode], { type: 'application/javascript' });
             navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
         }
 
-        // Bắt sự kiện cài đặt của Android
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
         });
 
-        // Hàm xử lý Nút bấm Cài đặt
         function installApp() {
             if (deferredPrompt) {
-                // Cho Android
                 deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    deferredPrompt = null;
-                });
+                deferredPrompt.userChoice.then((choiceResult) => { deferredPrompt = null; });
             } else {
-                // Kiểm tra xem có phải iPhone/iPad không
                 const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
                 const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
                 
@@ -151,9 +143,6 @@
             }
         }
 
-        // ==========================================
-        // CÁC CHỨC NĂNG CHÍNH CỦA BẢN ĐỒ
-        // ==========================================
         const API_URL = "https://script.google.com/macros/s/AKfycbzgkTwcVP5rVifEz3SsmsGCvb2ttczeR3yh3LvTW_69VHOHfIMk-38mln3lWfGruELe/exec"; 
         
         let currentRole = "";
@@ -181,12 +170,31 @@
                 document.getElementById("panelTitle").style.color = "#27AE60";
                 document.getElementById("deviceId").placeholder = "Nhập Mã Của Bạn (VD: LAK_01)";
                 document.getElementById("naiButtons").style.display = "block";
+                document.getElementById("guideButtons").style.display = "none";
             } else {
                 document.getElementById("panelTitle").innerHTML = "🧭 CHẾ ĐỘ HƯỚNG DẪN VIÊN";
                 document.getElementById("panelTitle").style.color = "#2980B9";
                 document.getElementById("deviceId").placeholder = "Nhập Mã Voi Cần Tìm (VD: LAK_01)";
                 document.getElementById("guideButtons").style.display = "block";
+                document.getElementById("naiButtons").style.display = "none";
             }
+        }
+
+        // ==========================================
+        // HÀM QUAY LẠI MÀN HÌNH CHÍNH
+        // ==========================================
+        function goBack() {
+            // Tắt toàn bộ định vị, radar và reset bản đồ trước khi ra ngoài
+            stopTracking();
+            
+            document.getElementById("mainControls").style.display = "none";
+            document.getElementById("map").style.display = "none";
+            document.getElementById("roleSelection").style.display = "flex";
+            
+            document.getElementById("naiButtons").style.display = "none";
+            document.getElementById("guideButtons").style.display = "none";
+            document.getElementById("deviceId").value = ""; 
+            currentRole = "";
         }
 
         function startTrackingNai() {
@@ -284,7 +292,6 @@
                             targetLat = parseFloat(voi.lat);
                             targetLon = parseFloat(voi.lon);
                             
-                            // Vá lỗi lọc số mất dấu phẩy giống QGIS
                             while(targetLat > 90 || targetLat < -90) targetLat /= 10.0;
                             while(targetLon > 180 || targetLon < -180) targetLon /= 10.0;
                             
