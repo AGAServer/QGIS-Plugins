@@ -4,9 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Trạm Voi">
     <meta name="theme-color" content="#27AE60">
     <title>Trạm Phát Tín Hiệu & Dò Tìm Voi</title>
     
+    <!-- Link Manifest Ảo sẽ được tạo bằng JS bên dưới để lừa trình duyệt -->
+    <link rel="manifest" id="manifest-link">
+    <link rel="icon" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/3075/3075908.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3075/3075908.png">
+
     <!-- Thư viện Bản đồ -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -16,9 +23,10 @@
         
         /* KHU VỰC CHỌN VAI TRÒ */
         #roleSelection { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #fff; z-index: 9999; padding: 20px;}
-        .role-btn { width: 100%; max-width: 350px; padding: 20px; font-size: 18px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .role-btn { width: 100%; max-width: 350px; padding: 18px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-nai { background-color: #27AE60; }
         .btn-guide { background-color: #2980B9; }
+        .btn-install { background-color: #F39C12; margin-top: 20px; border: 2px dashed #E67E22; color: #fff;}
 
         /* BẢNG ĐIỀU KHIỂN CHUNG */
         .controls { background: white; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 1000;}
@@ -41,16 +49,18 @@
     <!-- MÀN HÌNH 1: CHỌN VAI TRÒ -->
     <div id="roleSelection">
         <h2 style="color: #27AE60;">🐘 HỆ THỐNG LẮK TOUR</h2>
-        <p style="color: #7F8C8D; text-align: center; margin-bottom: 30px;">Vui lòng chọn vai trò của bạn để bắt đầu.</p>
+        <p style="color: #7F8C8D; text-align: center; margin-bottom: 20px;">Vui lòng chọn vai trò của bạn để bắt đầu.</p>
+        
         <button class="role-btn btn-nai" onclick="selectRole('nai')">🐘 TÔI LÀ NÀI VOI</button>
         <button class="role-btn btn-guide" onclick="selectRole('guide')">🧭 TÔI LÀ HƯỚNG DẪN VIÊN</button>
+        
+        <!-- NÚT CÀI ĐẶT APP -->
+        <button class="role-btn btn-install" id="btnInstall" onclick="installApp()">📱 CÀI ĐẶT RA MÀN HÌNH CHÍNH</button>
     </div>
 
-    <!-- MÀN HÌNH 2: BẢNG ĐIỀU KHIỂN (Thay đổi theo vai trò) -->
+    <!-- MÀN HÌNH 2: BẢNG ĐIỀU KHIỂN -->
     <div class="controls" id="mainControls" style="display: none;">
         <h3 id="panelTitle" style="margin: 0 0 10px 0; text-align: center;">...</h3>
-        
-        <!-- Input dùng chung -->
         <input type="text" id="deviceId" placeholder="Nhập ID...">
         
         <!-- Các nút cho Nài Voi -->
@@ -65,11 +75,10 @@
             <button class="action-btn" style="background-color: #2980B9;" id="btnStartGuide" onclick="startTrackingGuide()">🧭 TÌM KIẾM NÀI VOI NÀY</button>
             <button class="action-btn" style="background-color: #E74C3C; display:none;" id="btnStopGuide" onclick="stopTracking()">⏹ HỦY TÌM KIẾM</button>
         </div>
-
         <div id="status">Trạng thái: Đang chờ...</div>
     </div>
     
-    <!-- KHUNG HIỂN THỊ LA BÀN & KHOẢNG CÁCH CHO HDV -->
+    <!-- KHUNG HIỂN THỊ LA BÀN & KHOẢNG CÁCH -->
     <div id="guideInfo">
         <div>Khoảng cách đến Voi: <b id="distanceText" style="color: #F1C40F;">Đang tính...</b></div>
         <div id="compassBox">
@@ -86,6 +95,65 @@
     <div id="map"></div>
 
     <script>
+        // ==========================================
+        // CẤU HÌNH PWA ĐỂ CÀI ĐẶT APP 
+        // ==========================================
+        const manifest = {
+            "name": "Trạm Voi Lắk",
+            "short_name": "Trạm Voi",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#EAF3EC",
+            "theme_color": "#27AE60",
+            "icons": [{
+                "src": "https://cdn-icons-png.flaticon.com/512/3075/3075908.png",
+                "sizes": "512x512",
+                "type": "image/png"
+            }]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+        document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
+
+        // Đăng ký Service Worker Ảo
+        if ('serviceWorker' in navigator) {
+            const swCode = `self.addEventListener('fetch', function(e) {});`;
+            const swBlob = new Blob([swCode], { type: 'application/javascript' });
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+        }
+
+        // Bắt sự kiện cài đặt của Android
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        // Hàm xử lý Nút bấm Cài đặt
+        function installApp() {
+            if (deferredPrompt) {
+                // Cho Android
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    deferredPrompt = null;
+                });
+            } else {
+                // Kiểm tra xem có phải iPhone/iPad không
+                const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+                const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
+                
+                if (isInStandaloneMode) {
+                    alert("Ứng dụng này đã được cài đặt trên máy của bạn rồi!");
+                } else if (isIos) {
+                    alert("🍏 ĐỂ CÀI ĐẶT TRÊN iPHONE:\n\n1. Nhìn xuống cạnh dưới cùng của màn hình Safari.\n2. Bấm vào biểu tượng 'Chia sẻ' (Hình ô vuông có mũi tên trỏ lên).\n3. Vuốt xuống và chọn 'Thêm vào MH chính' (Add to Home Screen).");
+                } else {
+                    alert("⚙️ TRÌNH DUYỆT KHÔNG HỖ TRỢ:\n\nVui lòng bấm vào Menu (3 dấu chấm góc phải trên cùng) -> Chọn 'Thêm vào Màn hình chính'.");
+                }
+            }
+        }
+
+        // ==========================================
+        // CÁC CHỨC NĂNG CHÍNH CỦA BẢN ĐỒ
+        // ==========================================
         const API_URL = "https://script.google.com/macros/s/AKfycbzgkTwcVP5rVifEz3SsmsGCvb2ttczeR3yh3LvTW_69VHOHfIMk-38mln3lWfGruELe/exec"; 
         
         let currentRole = "";
@@ -94,23 +162,19 @@
         let targetMarkers = {}; 
         let routingLine = null;
         let fetchInterval = null;
-        
-        // Biến lưu tọa độ cho HDV tính toán la bàn
         let myLat = null, myLon = null, targetLat = null, targetLon = null;
 
-        // Khởi tạo bản đồ
         map = L.map('map').setView([12.345, 108.123], 13);
         L.tileLayer('http://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}', {
             maxZoom: 20, attribution: '© Google Satellite'
         }).addTo(map);
 
-        // HÀM CHỌN VAI TRÒ
         function selectRole(role) {
             currentRole = role;
             document.getElementById("roleSelection").style.display = "none";
             document.getElementById("mainControls").style.display = "block";
             document.getElementById("map").style.display = "block";
-            map.invalidateSize(); // Fix lỗi đen bản đồ khi ẩn/hiện
+            map.invalidateSize(); 
 
             if (role === 'nai') {
                 document.getElementById("panelTitle").innerHTML = "🐘 CHẾ ĐỘ NÀI VOI";
@@ -125,9 +189,6 @@
             }
         }
 
-        // ==========================================
-        // 1. CHỨC NĂNG CỦA NÀI VOI
-        // ==========================================
         function startTrackingNai() {
             const deviceId = document.getElementById("deviceId").value.trim();
             if (!deviceId) { alert("Vui lòng nhập Mã!"); return; }
@@ -169,15 +230,11 @@
             document.getElementById("btnCamera").style.backgroundColor = "#E74C3C";
         }
 
-        // ==========================================
-        // 2. CHỨC NĂNG CỦA HƯỚNG DẪN VIÊN
-        // ==========================================
         function startTrackingGuide() {
             const targetId = document.getElementById("deviceId").value.trim();
             if (!targetId) { alert("Vui lòng nhập Mã Nài Voi cần tìm!"); return; }
             if (!navigator.geolocation) { alert("Điện thoại không hỗ trợ GPS."); return; }
 
-            // Yêu cầu quyền La Bàn (Cho iOS 13+)
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                 DeviceOrientationEvent.requestPermission().then(permissionState => {
                     if (permissionState === 'granted') { window.addEventListener('deviceorientation', handleOrientation); }
@@ -193,7 +250,6 @@
             document.getElementById("status").innerHTML = `🟢 Đang quét Radar tìm [${targetId}]...`;
             document.getElementById("status").style.color = "#2980B9";
 
-            // Lấy vị trí của HDV
             watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     myLat = position.coords.latitude;
@@ -206,13 +262,12 @@
                     } else {
                         myMarker.setLatLng([myLat, myLon]);
                     }
-                    updateRouting(); // Cập nhật đường vẽ
+                    updateRouting(); 
                 },
                 (error) => { document.getElementById("status").innerHTML = "❌ Lỗi GPS!"; },
                 { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
             );
 
-            // Fetch vị trí Nài Voi liên tục
             fetchInterval = setInterval(() => fetchTargetLocation(targetId), 5000);
             fetchTargetLocation(targetId);
         }
@@ -228,6 +283,10 @@
                             found = true;
                             targetLat = parseFloat(voi.lat);
                             targetLon = parseFloat(voi.lon);
+                            
+                            // Vá lỗi lọc số mất dấu phẩy giống QGIS
+                            while(targetLat > 90 || targetLat < -90) targetLat /= 10.0;
+                            while(targetLon > 180 || targetLon < -180) targetLon /= 10.0;
                             
                             if(targetMarkers[voi.id]) {
                                 targetMarkers[voi.id].setLatLng([targetLat, targetLon]);
@@ -246,34 +305,26 @@
             });
         }
 
-        // HÀM VẼ ĐƯỜNG & TÍNH KHOẢNG CÁCH, LA BÀN
         function updateRouting() {
             if (myLat && myLon && targetLat && targetLon) {
                 const myPos = L.latLng(myLat, myLon);
                 const targetPos = L.latLng(targetLat, targetLon);
                 
-                // 1. Tính khoảng cách
                 const distance = Math.round(map.distance(myPos, targetPos));
                 document.getElementById("distanceText").innerHTML = `${distance} mét`;
                 document.getElementById("distanceText").style.color = "#F1C40F";
 
-                // 2. Vẽ đường kẻ đỏ
                 if (routingLine) { map.removeLayer(routingLine); }
                 routingLine = L.polyline([myPos, targetPos], {color: 'red', dashArray: '5, 5', weight: 3}).addTo(map);
                 
-                // Căn khung bản đồ để nhìn thấy cả HDV và Voi
                 map.fitBounds(routingLine.getBounds(), {padding: [50, 50]});
             }
         }
 
-        // Xử lý La Bàn xoay mũi tên
         function handleOrientation(event) {
-            if (!myLat || !targetLat) return; // Chưa có dữ liệu thì không xoay
-
-            // Lấy góc hướng của điện thoại so với phương Bắc
+            if (!myLat || !targetLat) return; 
             let phoneHeading = event.webkitCompassHeading || Math.abs(event.alpha - 360); 
             
-            // Tính toán góc Bearing (Từ HDV chỉ thẳng tới Voi)
             const dLon = (targetLon - myLon) * Math.PI / 180;
             const lat1 = myLat * Math.PI / 180;
             const lat2 = targetLat * Math.PI / 180;
@@ -282,14 +333,10 @@
             let bearing = Math.atan2(y, x) * 180 / Math.PI;
             bearing = (bearing + 360) % 360;
 
-            // Xoay mũi tên: Hướng tới voi trừ đi hướng điện thoại đang cầm
             let arrowRotation = bearing - phoneHeading;
             document.getElementById("compassArrow").style.transform = `rotate(${arrowRotation}deg)`;
         }
 
-        // ==========================================
-        // DỪNG MỌI HOẠT ĐỘNG CHUNG
-        // ==========================================
         function stopTracking() {
             if (watchId !== null) navigator.geolocation.clearWatch(watchId);
             if (fetchInterval !== null) clearInterval(fetchInterval);
