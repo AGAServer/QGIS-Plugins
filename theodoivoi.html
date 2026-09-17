@@ -53,9 +53,10 @@
         #map { flex-grow: 1; width: 100%; display: none; } 
         #cameraBox { width: 100%; height: 350px; display: none; border: none; }
         
+        /* GIAO DIỆN MỚI CỦA HƯỚNG DẪN VIÊN */
         #guideInfo { display: none; background: #34495E; color: white; padding: 10px; text-align: center; z-index: 1000; }
-        #elephantList { max-height: 130px; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px; font-size: 13.5px; margin-bottom: 8px;}
-        .list-item { margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed #7F8C8D; }
+        #elephantList { max-height: 150px; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px; margin-bottom: 8px;}
+        .list-item { margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #7F8C8D; line-height: 1.4;}
         .list-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
         
         #compassBox { display: flex; justify-content: center; align-items: center; margin-top: 5px; }
@@ -79,6 +80,7 @@
         <button class="btn-back" onclick="goBack()">🔙 QUAY LẠI CHỌN VAI TRÒ</button>
         <h3 id="panelTitle" style="margin: 0 0 10px 0; text-align: center;">...</h3>
         
+        <!-- Input chỉ hiện khi là Nài Voi -->
         <input type="text" id="deviceId" placeholder="Nhập tên/Mã của bạn...">
         
         <div id="naiButtons" style="display: none;">
@@ -292,17 +294,14 @@
                         while(lat > 90 || lat < -90) lat /= 10.0;
                         while(lon > 180 || lon < -180) lon /= 10.0;
                         
-                        // BỘ LỌC THỜI GIAN ĐỂ XÁC ĐỊNH ONLINE/OFFLINE
                         let status = 'offline';
                         try {
-                            // Cắt chuỗi VD: "09:54:00 - 17/09/2026"
                             let parts = voi.time.split(' - ');
                             let timeParts = parts[0].split(':');
                             let dateParts = parts[1].split('/');
                             let voiTime = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]);
                             
                             let diffSeconds = (now - voiTime) / 1000;
-                            // Nếu trễ không quá 120s là Online
                             if (diffSeconds >= -60 && diffSeconds <= 120) { 
                                 status = 'online';
                             }
@@ -332,8 +331,12 @@
             for (let id in lastKnownData) {
                 let voi = lastKnownData[id];
                 let isOffline = voi.status === 'offline';
-                let popupText = `<b style="font-size:14px;">${id}</b><br>🕒 ${voi.time || 'Không rõ'}`;
-                if (isOffline) popupText += "<br><span style='color:red;'>⚠️ Vị trí cuối (Ngoại tuyến)</span>";
+                
+                let statusLabel = isOffline ? "Ngoại tuyến" : "Trực tuyến";
+                let statusColor = isOffline ? "#E74C3C" : "#2ECC71";
+                let iconEmoji = isOffline ? "⚠️" : "🟢";
+
+                let popupText = `<b style="font-size:14px;">${iconEmoji} ${id}</b><br>Trạng thái: <b style="color:${statusColor}">${statusLabel}</b><br>🕒 ${voi.time || 'Không rõ'}`;
 
                 if(targetMarkers[id]) {
                     targetMarkers[id].setLatLng([voi.lat, voi.lon]);
@@ -350,9 +353,9 @@
                 if (myLat && myLon) {
                     let dist = Math.round(map.distance([myLat, myLon], [voi.lat, voi.lon]));
                     if (isOffline) {
-                        distText = `<span style='color:#E74C3C;'>${dist}m (Mất sóng)</span>`;
+                        distText = `<span style='color:#E74C3C;'>${dist}m</span>`;
                     } else {
-                        distText = `<span style='color:#F1C40F;'>${dist}m (Đang phát)</span>`;
+                        distText = `<span style='color:#F1C40F;'>${dist}m</span>`;
                         if (dist < minDistance) {
                             minDistance = dist;
                             closestTargetId = id;
@@ -361,13 +364,16 @@
                 }
 
                 htmlList += `<div class="list-item">
-                                <b style="color:${isOffline ? '#BDC3C7' : '#FFFFFF'}">${id}</b>: ${distText} <br>
-                                <span style="font-size:11px; color:${isOffline ? '#E74C3C' : '#95A5A6'};">🕒 Cập nhật: ${voi.time}</span>
+                                <span style="font-size:14px;">${iconEmoji}</span>
+                                <b style="color:${isOffline ? '#BDC3C7' : '#FFFFFF'}; font-size:14px;">${id}</b> 
+                                <span style="color:${statusColor}; font-size: 13px;">| ${statusLabel} |</span> 
+                                <span style="font-size:12px; color:#BDC3C7;">${voi.time}</span>
+                                <br><div style="font-size: 13px; margin-top: 3px; padding-left: 22px;">📍 Cách bạn: <b>${distText}</b></div>
                              </div>`;
             }
 
             if (Object.keys(lastKnownData).length === 0) {
-                htmlList = "<div style='color:#E74C3C;'>Chưa có nài voi nào trực tuyến...</div>";
+                htmlList = "<div style='color:#E74C3C;'>Chưa có thiết bị nào đang kết nối...</div>";
             }
             document.getElementById("elephantList").innerHTML = htmlList;
 
