@@ -31,10 +31,10 @@
         
         /* 2. CÁI HỘP TRẮNG (CARD) CHỨA CÁC NÚT BẤM */
         .login-card {
-            background-color: rgba(255, 255, 255, 0.95); /* Nền trắng hơi trong suốt một chút cho sang trọng */
+            background-color: rgba(255, 255, 255, 0.95); 
             padding: 35px 25px;
-            border-radius: 15px; /* Bo góc tròn */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* Bóng đổ 3D nổi bật */
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
             width: 100%;
             max-width: 380px;
             display: flex;
@@ -72,7 +72,6 @@
 
     <!-- MÀN HÌNH 1: CHỌN VAI TRÒ -->
     <div id="roleSelection">
-        <!-- HỘP TRẮNG BO GÓC BÊN TRONG NỀN ẢNH -->
         <div class="login-card">
             <h2>🐘 HỆ THỐNG LẮK TOUR</h2>
             <p>Vui lòng chọn vai trò của bạn để bắt đầu.</p>
@@ -86,7 +85,6 @@
 
     <!-- MÀN HÌNH 2: BẢNG ĐIỀU KHIỂN -->
     <div class="controls" id="mainControls" style="display: none;">
-        <!-- NÚT QUAY LẠI -->
         <button class="btn-back" onclick="goBack()">🔙 QUAY LẠI CHỌN VAI TRÒ</button>
         
         <h3 id="panelTitle" style="margin: 0 0 10px 0; text-align: center;">...</h3>
@@ -107,9 +105,10 @@
         <div id="status">Trạng thái: Đang chờ...</div>
     </div>
     
-    <!-- KHUNG HIỂN THỊ LA BÀN & KHOẢNG CÁCH CHO HDV -->
+    <!-- KHUNG HIỂN THỊ LA BÀN & KHOẢNG CÁCH (NÂNG CẤP THỜI GIAN) -->
     <div id="guideInfo">
         <div>Khoảng cách đến Voi: <b id="distanceText" style="color: #F1C40F;">Đang tính...</b></div>
+        <div id="lastSeenText" style="font-size: 13px; font-weight: bold; color: #2ECC71; margin-top: 5px;">🕒 Tín hiệu cuối: Đang kết nối...</div>
         <div id="compassBox">
             <div class="compass-circle">
                 <div class="compass-arrow" id="compassArrow"></div>
@@ -124,9 +123,6 @@
     <div id="map"></div>
 
     <script>
-        // ==========================================
-        // CẤU HÌNH PWA CÀI ĐẶT APP 
-        // ==========================================
         const manifest = {
             "name": "Trạm Voi Lắk",
             "short_name": "Trạm Voi",
@@ -173,9 +169,6 @@
             }
         }
 
-        // ==========================================
-        // CÁC CHỨC NĂNG CHÍNH CỦA BẢN ĐỒ
-        // ==========================================
         const API_URL = "https://script.google.com/macros/s/AKfycbzgkTwcVP5rVifEz3SsmsGCvb2ttczeR3yh3LvTW_69VHOHfIMk-38mln3lWfGruELe/exec"; 
         
         let currentRole = "";
@@ -186,7 +179,6 @@
         let fetchInterval = null;
         let myLat = null, myLon = null, targetLat = null, targetLon = null;
         
-        // BIẾN QUẢN LÝ CHỐNG TẮT MÀN HÌNH
         let wakeLock = null;
 
         map = L.map('map').setView([12.345, 108.123], 13);
@@ -194,7 +186,6 @@
             maxZoom: 20, attribution: '© Google Satellite'
         }).addTo(map);
 
-        // HÀM YÊU CẦU GIỮ SÁNG MÀN HÌNH
         async function requestWakeLock() {
             try {
                 if ('wakeLock' in navigator) {
@@ -205,14 +196,12 @@
             }
         }
 
-        // TỰ ĐỘNG BẬT LẠI WAKE LOCK NẾU NGƯỜI DÙNG ẨN/MỞ LẠI APP
         document.addEventListener('visibilitychange', async () => {
             if (wakeLock !== null && document.visibilityState === 'visible') {
                 requestWakeLock();
             }
         });
 
-        // HÀM CHỌN VAI TRÒ
         function selectRole(role) {
             currentRole = role;
             document.getElementById("roleSelection").style.display = "none";
@@ -235,7 +224,6 @@
             }
         }
 
-        // HÀM QUAY LẠI MÀN HÌNH CHÍNH
         function goBack() {
             stopTracking();
             document.getElementById("mainControls").style.display = "none";
@@ -247,15 +235,11 @@
             currentRole = "";
         }
 
-        // ==========================================
-        // CHỨC NĂNG CỦA NÀI VOI
-        // ==========================================
         function startTrackingNai() {
             const deviceId = document.getElementById("deviceId").value.trim();
             if (!deviceId) { alert("Vui lòng nhập Mã!"); return; }
             if (!navigator.geolocation) { alert("Điện thoại không hỗ trợ GPS."); return; }
 
-            // Bật chống tắt màn hình
             requestWakeLock();
 
             document.getElementById("btnStartNai").style.display = "none";
@@ -294,9 +278,6 @@
             document.getElementById("btnCamera").style.backgroundColor = "#E74C3C";
         }
 
-        // ==========================================
-        // CHỨC NĂNG CỦA HƯỚNG DẪN VIÊN
-        // ==========================================
         function startTrackingGuide() {
             const targetId = document.getElementById("deviceId").value.trim();
             if (!targetId) { alert("Vui lòng nhập Mã Nài Voi cần tìm!"); return; }
@@ -347,30 +328,51 @@
             .then(data => {
                 if(data.status === "success") {
                     let found = false;
+                    let lastTimeText = "Không rõ";
+                    
                     data.data.forEach(voi => {
                         if (voi.id === targetId) { 
                             found = true;
                             targetLat = parseFloat(voi.lat);
                             targetLon = parseFloat(voi.lon);
+                            lastTimeText = voi.time || "Vừa cập nhật";
                             
                             while(targetLat > 90 || targetLat < -90) targetLat /= 10.0;
                             while(targetLon > 180 || targetLon < -180) targetLon /= 10.0;
                             
+                            let popupText = `<b>${voi.id}</b><br>🕒 ${lastTimeText}`;
+                            
                             if(targetMarkers[voi.id]) {
                                 targetMarkers[voi.id].setLatLng([targetLat, targetLon]);
+                                targetMarkers[voi.id].setTooltipContent(popupText);
                             } else {
                                 targetMarkers[voi.id] = L.marker([targetLat, targetLon]).addTo(map);
-                                targetMarkers[voi.id].bindTooltip(voi.id, {permanent: true, direction: 'right'});
+                                targetMarkers[voi.id].bindTooltip(popupText, {permanent: true, direction: 'right'});
                             }
                             updateRouting();
                         }
                     });
+                    
+                    // XỬ LÝ KHI MẤT TÍN HIỆU
                     if(!found) {
-                        document.getElementById("distanceText").innerHTML = "Mất tín hiệu Voi!";
-                        document.getElementById("distanceText").style.color = "#E74C3C";
+                        if (targetLat !== null && targetLon !== null) {
+                            // Vẫn giữ lại Marker và tọa độ cũ, chỉ chuyển trạng thái sang cảnh báo mất sóng
+                            document.getElementById("distanceText").innerHTML = "MẤT TÍN HIỆU!";
+                            document.getElementById("distanceText").style.color = "#E74C3C";
+                            document.getElementById("lastSeenText").innerHTML = "⚠️ Vị trí đang hiển thị là Vị trí cuối cùng!";
+                            document.getElementById("lastSeenText").style.color = "#E74C3C";
+                        } else {
+                            document.getElementById("distanceText").innerHTML = "Chưa có tín hiệu Voi!";
+                            document.getElementById("distanceText").style.color = "#E74C3C";
+                        }
+                    } else {
+                        // Tín hiệu bình thường
+                        document.getElementById("lastSeenText").innerHTML = `🕒 Tín hiệu cuối lúc: ${lastTimeText}`;
+                        document.getElementById("lastSeenText").style.color = "#2ECC71";
                     }
                 }
-            });
+            })
+            .catch(err => console.log(err));
         }
 
         function updateRouting() {
@@ -379,8 +381,13 @@
                 const targetPos = L.latLng(targetLat, targetLon);
                 
                 const distance = Math.round(map.distance(myPos, targetPos));
-                document.getElementById("distanceText").innerHTML = `${distance} mét`;
-                document.getElementById("distanceText").style.color = "#F1C40F";
+                
+                // Nếu khoảng cách vẫn được tính toán, chỉ cập nhật chữ nếu tín hiệu còn
+                const distanceElem = document.getElementById("distanceText");
+                if (distanceElem.innerHTML !== "MẤT TÍN HIỆU!") {
+                    distanceElem.innerHTML = `${distance} mét`;
+                    distanceElem.style.color = "#F1C40F";
+                }
 
                 if (routingLine) { map.removeLayer(routingLine); }
                 routingLine = L.polyline([myPos, targetPos], {color: 'red', dashArray: '5, 5', weight: 3}).addTo(map);
