@@ -9,19 +9,16 @@
     <meta name="theme-color" content="#27AE60">
     <title>Trạm Phát Tín Hiệu & Dò Tìm Voi</title>
     
-    <!-- Link Manifest Ảo tạo PWA -->
     <link rel="manifest" id="manifest-link">
     <link rel="icon" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/3075/3075908.png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3075/3075908.png">
 
-    <!-- Thư viện Bản đồ -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
         body { font-family: Arial, sans-serif; background-color: #EAF3EC; margin: 0; padding: 0; color: #1B4D3E; display: flex; flex-direction: column; height: 100vh;}
         
-        /* 1. KHU VỰC CHỨA ẢNH NỀN TOÀN MÀN HÌNH */
         #roleSelection { 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
             height: 100vh; 
@@ -29,17 +26,13 @@
             z-index: 9999; padding: 20px;
         }
         
-        /* 2. CÁI HỘP TRẮNG (CARD) CHỨA CÁC NÚT BẤM */
         .login-card {
             background-color: rgba(255, 255, 255, 0.95); 
             padding: 35px 25px;
             border-radius: 15px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
-            width: 100%;
-            max-width: 380px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            width: 100%; max-width: 380px;
+            display: flex; flex-direction: column; align-items: center;
         }
 
         .login-card h2 { color: #27AE60; font-size: 26px; margin: 0 0 10px 0; text-align: center; }
@@ -51,7 +44,6 @@
         .btn-guide { background-color: #2980B9; }
         .btn-install { background-color: #F39C12; margin-top: 10px; border: 2px dashed #E67E22; color: #fff;}
 
-        /* BẢNG ĐIỀU KHIỂN CHUNG BÊN TRONG */
         .controls { background: white; padding: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 1000;}
         input { width: 90%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; font-weight: bold; text-align: center; font-size: 16px;}
         button.action-btn { width: 100%; padding: 12px; font-size: 15px; font-weight: bold; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 5px; }
@@ -61,8 +53,12 @@
         #map { flex-grow: 1; width: 100%; display: none; } 
         #cameraBox { width: 100%; height: 350px; display: none; border: none; }
         
-        /* THÔNG TIN HƯỚNG DẪN VIÊN (LA BÀN) */
-        #guideInfo { display: none; background: #34495E; color: white; padding: 10px; text-align: center; font-size: 14px; z-index: 1000; }
+        /* GIAO DIỆN MỚI CỦA HƯỚNG DẪN VIÊN */
+        #guideInfo { display: none; background: #34495E; color: white; padding: 10px; text-align: center; z-index: 1000; }
+        #elephantList { max-height: 130px; overflow-y: auto; text-align: left; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 5px; font-size: 13.5px; margin-bottom: 8px;}
+        .list-item { margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px dashed #7F8C8D; }
+        .list-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        
         #compassBox { display: flex; justify-content: center; align-items: center; margin-top: 5px; }
         .compass-circle { width: 60px; height: 60px; border: 3px solid #F1C40F; border-radius: 50%; display: flex; justify-content: center; align-items: center; position: relative; }
         .compass-arrow { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 30px solid #E74C3C; position: absolute; transform-origin: 50% 100%; bottom: 50%; transition: transform 0.2s ease-out; }
@@ -70,51 +66,46 @@
 </head>
 <body>
 
-    <!-- MÀN HÌNH 1: CHỌN VAI TRÒ -->
     <div id="roleSelection">
         <div class="login-card">
             <h2>🐘 HỆ THỐNG LẮK TOUR</h2>
             <p>Vui lòng chọn vai trò của bạn để bắt đầu.</p>
-            
             <button class="role-btn btn-nai" onclick="selectRole('nai')">🐘 TÔI LÀ NÀI VOI</button>
             <button class="role-btn btn-guide" onclick="selectRole('guide')">🧭 TÔI LÀ HƯỚNG DẪN VIÊN</button>
-            
             <button class="role-btn btn-install" id="btnInstall" onclick="installApp()">📱 CÀI ĐẶT RA MÀN HÌNH CHÍNH</button>
         </div>
     </div>
 
-    <!-- MÀN HÌNH 2: BẢNG ĐIỀU KHIỂN -->
     <div class="controls" id="mainControls" style="display: none;">
         <button class="btn-back" onclick="goBack()">🔙 QUAY LẠI CHỌN VAI TRÒ</button>
-        
         <h3 id="panelTitle" style="margin: 0 0 10px 0; text-align: center;">...</h3>
-        <input type="text" id="deviceId" placeholder="Nhập ID...">
         
-        <!-- Các nút cho Nài Voi -->
+        <!-- Input chỉ hiện khi là Nài Voi -->
+        <input type="text" id="deviceId" placeholder="Nhập tên/Mã của bạn...">
+        
         <div id="naiButtons" style="display: none;">
             <button class="action-btn" style="background-color: #27AE60;" id="btnStartNai" onclick="startTrackingNai()">▶ BẬT ĐỊNH VỊ GPS</button>
             <button class="action-btn" style="background-color: #8E44AD;" id="btnCamera" onclick="startCamera()" style="display:none;">🎥 PHÁT CAMERA TRỰC TIẾP</button>
             <button class="action-btn" style="background-color: #E74C3C; display:none;" id="btnStopNai" onclick="stopTracking()">⏹ DỪNG CHIA SẺ</button>
         </div>
 
-        <!-- Các nút cho Hướng Dẫn Viên -->
         <div id="guideButtons" style="display: none;">
-            <button class="action-btn" style="background-color: #2980B9;" id="btnStartGuide" onclick="startTrackingGuide()">🧭 TÌM KIẾM NÀI VOI NÀY</button>
-            <button class="action-btn" style="background-color: #E74C3C; display:none;" id="btnStopGuide" onclick="stopTracking()">⏹ HỦY TÌM KIẾM</button>
+            <button class="action-btn" style="background-color: #2980B9;" id="btnStartGuide" onclick="startTrackingGuide()">🧭 QUÉT TÌM TOÀN BỘ NÀI VOI</button>
+            <button class="action-btn" style="background-color: #E74C3C; display:none;" id="btnStopGuide" onclick="stopTracking()">⏹ HỦY QUÉT</button>
         </div>
         <div id="status">Trạng thái: Đang chờ...</div>
     </div>
     
-    <!-- KHUNG HIỂN THỊ LA BÀN & KHOẢNG CÁCH (NÂNG CẤP THỜI GIAN) -->
     <div id="guideInfo">
-        <div>Khoảng cách đến Voi: <b id="distanceText" style="color: #F1C40F;">Đang tính...</b></div>
-        <div id="lastSeenText" style="font-size: 13px; font-weight: bold; color: #2ECC71; margin-top: 5px;">🕒 Tín hiệu cuối: Đang kết nối...</div>
+        <div style="font-weight:bold; margin-bottom:5px; color:#2ECC71;">📡 DANH SÁCH THIẾT BỊ HOẠT ĐỘNG:</div>
+        <div id="elephantList">Đang dò tìm tín hiệu...</div>
+        
         <div id="compassBox">
             <div class="compass-circle">
                 <div class="compass-arrow" id="compassArrow"></div>
             </div>
-            <span style="margin-left: 15px; font-size: 12px; text-align: left;">
-                Mũi tên đỏ chỉ hướng Nài Voi.<br><i>(Yêu cầu bật xoay tự động)</i>
+            <span style="margin-left: 15px; font-size: 11.5px; text-align: left; color:#BDC3C7;">
+                Mũi tên đỏ chỉ hướng Nài Voi <b style="color:#F1C40F;">GẦN NHẤT</b>.<br><i>(Yêu cầu điện thoại bật xoay tự động)</i>
             </span>
         </div>
     </div>
@@ -123,62 +114,42 @@
     <div id="map"></div>
 
     <script>
+        // CẤU HÌNH PWA CÀI ĐẶT APP...
         const manifest = {
-            "name": "Trạm Voi Lắk",
-            "short_name": "Trạm Voi",
-            "start_url": ".",
-            "display": "standalone",
-            "background_color": "#ffffff",
-            "theme_color": "#27AE60",
-            "icons": [{
-                "src": "https://cdn-icons-png.flaticon.com/512/3075/3075908.png",
-                "sizes": "512x512",
-                "type": "image/png"
-            }]
+            "name": "Trạm Voi Lắk", "short_name": "Trạm Voi", "start_url": ".", "display": "standalone",
+            "background_color": "#ffffff", "theme_color": "#27AE60",
+            "icons": [{"src": "https://cdn-icons-png.flaticon.com/512/3075/3075908.png", "sizes": "512x512", "type": "image/png"}]
         };
         const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
         document.getElementById('manifest-link').href = URL.createObjectURL(manifestBlob);
-
         if ('serviceWorker' in navigator) {
             const swCode = `self.addEventListener('fetch', function(e) {});`;
             const swBlob = new Blob([swCode], { type: 'application/javascript' });
             navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
         }
-
         let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-        });
-
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
         function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => { deferredPrompt = null; });
-            } else {
-                const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-                const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
-                
-                if (isInStandaloneMode) {
-                    alert("Ứng dụng này đã được cài đặt trên máy của bạn rồi!");
-                } else if (isIos) {
-                    alert("🍏 ĐỂ CÀI ĐẶT TRÊN iPHONE:\n\n1. Nhìn xuống cạnh dưới cùng của màn hình Safari.\n2. Bấm vào biểu tượng 'Chia sẻ' (Hình ô vuông có mũi tên trỏ lên).\n3. Vuốt xuống và chọn 'Thêm vào MH chính' (Add to Home Screen).");
-                } else {
-                    alert("⚙️ TRÌNH DUYỆT KHÔNG HỖ TRỢ:\n\nVui lòng bấm vào Menu (3 dấu chấm góc phải trên cùng) -> Chọn 'Thêm vào Màn hình chính'.");
-                }
-            }
+            if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; }); } 
+            else { alert("Vui lòng thêm ứng dụng vào Màn hình chính thông qua Menu của Trình duyệt!"); }
         }
 
+        // ==========================================
+        // LÕI XỬ LÝ ĐỘNG (DYNAMIC DUAL-MODE)
+        // ==========================================
         const API_URL = "https://script.google.com/macros/s/AKfycbzgkTwcVP5rVifEz3SsmsGCvb2ttczeR3yh3LvTW_69VHOHfIMk-38mln3lWfGruELe/exec"; 
         
         let currentRole = "";
         let watchId = null;
         let map, myMarker;
         let targetMarkers = {}; 
+        let lastKnownData = {}; // Bộ nhớ đệm lưu mọi ID quét được
         let routingLine = null;
         let fetchInterval = null;
-        let myLat = null, myLon = null, targetLat = null, targetLon = null;
-        
+        let myLat = null, myLon = null;
+        let closestTargetId = null; // ID gần nhất để La bàn khóa mục tiêu
+        let lastOrientationEvent = null;
+        let isFirstFocus = true;
         let wakeLock = null;
 
         map = L.map('map').setView([12.345, 108.123], 13);
@@ -187,19 +158,12 @@
         }).addTo(map);
 
         async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                }
-            } catch (err) {
-                console.log(`Lỗi Wake Lock: ${err.message}`);
-            }
+            try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } 
+            catch (err) {}
         }
 
         document.addEventListener('visibilitychange', async () => {
-            if (wakeLock !== null && document.visibilityState === 'visible') {
-                requestWakeLock();
-            }
+            if (wakeLock !== null && document.visibilityState === 'visible') requestWakeLock();
         });
 
         function selectRole(role) {
@@ -212,13 +176,13 @@
             if (role === 'nai') {
                 document.getElementById("panelTitle").innerHTML = "🐘 CHẾ ĐỘ NÀI VOI";
                 document.getElementById("panelTitle").style.color = "#27AE60";
-                document.getElementById("deviceId").placeholder = "Nhập Mã Của Bạn (VD: LAK_01)";
+                document.getElementById("deviceId").style.display = "block";
                 document.getElementById("naiButtons").style.display = "block";
                 document.getElementById("guideButtons").style.display = "none";
             } else {
                 document.getElementById("panelTitle").innerHTML = "🧭 CHẾ ĐỘ HƯỚNG DẪN VIÊN";
                 document.getElementById("panelTitle").style.color = "#2980B9";
-                document.getElementById("deviceId").placeholder = "Nhập Mã Voi Cần Tìm (VD: LAK_01)";
+                document.getElementById("deviceId").style.display = "none"; // Ẩn hoàn toàn ô nhập liệu
                 document.getElementById("guideButtons").style.display = "block";
                 document.getElementById("naiButtons").style.display = "none";
             }
@@ -235,13 +199,13 @@
             currentRole = "";
         }
 
+        // ==================== CHẾ ĐỘ NÀI VOI ====================
         function startTrackingNai() {
-            const deviceId = document.getElementById("deviceId").value.trim();
-            if (!deviceId) { alert("Vui lòng nhập Mã!"); return; }
+            const deviceId = document.getElementById("deviceId").value.trim().toUpperCase();
+            if (!deviceId) { alert("Vui lòng nhập Tên hoặc Mã của bạn!"); return; }
             if (!navigator.geolocation) { alert("Điện thoại không hỗ trợ GPS."); return; }
 
             requestWakeLock();
-
             document.getElementById("btnStartNai").style.display = "none";
             document.getElementById("btnStopNai").style.display = "block";
             document.getElementById("btnCamera").style.display = "block";
@@ -253,36 +217,32 @@
                 (position) => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
-                    
                     if (!myMarker) {
                         myMarker = L.circleMarker([lat, lon], {color: '#27AE60', radius: 8, fillOpacity: 1}).addTo(map);
-                        myMarker.bindPopup("<b>Bạn (Nài Voi)</b>");
+                        myMarker.bindPopup(`<b>${deviceId} (Bạn)</b>`);
                         map.setView([lat, lon], 16);
                     } else {
                         myMarker.setLatLng([lat, lon]);
                     }
                     fetch(`${API_URL}?action=update_location&device_id=${deviceId}&lat=${lat}&lon=${lon}`);
                 },
-                (error) => { document.getElementById("status").innerHTML = "❌ Lỗi GPS!"; },
+                (error) => { document.getElementById("status").innerHTML = "❌ Lỗi kết nối GPS!"; },
                 { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
             );
         }
 
         function startCamera() {
-            const deviceId = document.getElementById("deviceId").value.trim();
+            const deviceId = document.getElementById("deviceId").value.trim().toUpperCase();
             document.getElementById("map").style.display = "none";
             document.getElementById("cameraBox").style.display = "block";
             document.getElementById("cameraBox").src = `https://meet.jit.si/DoanNgocAn_TramVoi_${deviceId}#config.prejoinPageEnabled=false`;
-            
             document.getElementById("btnCamera").innerHTML = "🔴 ĐANG PHÁT SÓNG TRỰC TIẾP";
             document.getElementById("btnCamera").style.backgroundColor = "#E74C3C";
         }
 
+        // ==================== CHẾ ĐỘ HƯỚNG DẪN VIÊN ====================
         function startTrackingGuide() {
-            const targetId = document.getElementById("deviceId").value.trim();
-            if (!targetId) { alert("Vui lòng nhập Mã Nài Voi cần tìm!"); return; }
             if (!navigator.geolocation) { alert("Điện thoại không hỗ trợ GPS."); return; }
-
             requestWakeLock();
 
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -295,16 +255,14 @@
 
             document.getElementById("btnStartGuide").style.display = "none";
             document.getElementById("btnStopGuide").style.display = "block";
-            document.getElementById("deviceId").disabled = true;
             document.getElementById("guideInfo").style.display = "block";
-            document.getElementById("status").innerHTML = `🟢 Đang quét Radar tìm [${targetId}]...`;
+            document.getElementById("status").innerHTML = `🟢 Đang quét Radar tìm kiếm toàn vùng...`;
             document.getElementById("status").style.color = "#2980B9";
 
             watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     myLat = position.coords.latitude;
                     myLon = position.coords.longitude;
-                    
                     if (!myMarker) {
                         myMarker = L.circleMarker([myLat, myLon], {color: '#2980B9', radius: 8, fillOpacity: 1}).addTo(map);
                         myMarker.bindPopup("<b>Bạn (HDV)</b>");
@@ -312,92 +270,123 @@
                     } else {
                         myMarker.setLatLng([myLat, myLon]);
                     }
-                    updateRouting(); 
+                    updateMapAndList(); 
                 },
-                (error) => { document.getElementById("status").innerHTML = "❌ Lỗi GPS!"; },
+                (error) => { document.getElementById("status").innerHTML = "❌ Lỗi kết nối GPS!"; },
                 { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
             );
 
-            fetchInterval = setInterval(() => fetchTargetLocation(targetId), 5000);
-            fetchTargetLocation(targetId);
+            fetchInterval = setInterval(() => fetchAllTargets(), 5000);
+            fetchAllTargets();
         }
 
-        function fetchTargetLocation(targetId) {
+        function fetchAllTargets() {
             fetch(`${API_URL}?action=get_all`)
             .then(res => res.json())
             .then(data => {
                 if(data.status === "success") {
-                    let found = false;
-                    let lastTimeText = "Không rõ";
+                    let currentOnlineIds = [];
                     
                     data.data.forEach(voi => {
-                        if (voi.id === targetId) { 
-                            found = true;
-                            targetLat = parseFloat(voi.lat);
-                            targetLon = parseFloat(voi.lon);
-                            lastTimeText = voi.time || "Vừa cập nhật";
-                            
-                            while(targetLat > 90 || targetLat < -90) targetLat /= 10.0;
-                            while(targetLon > 180 || targetLon < -180) targetLon /= 10.0;
-                            
-                            let popupText = `<b>${voi.id}</b><br>🕒 ${lastTimeText}`;
-                            
-                            if(targetMarkers[voi.id]) {
-                                targetMarkers[voi.id].setLatLng([targetLat, targetLon]);
-                                targetMarkers[voi.id].setTooltipContent(popupText);
-                            } else {
-                                targetMarkers[voi.id] = L.marker([targetLat, targetLon]).addTo(map);
-                                targetMarkers[voi.id].bindTooltip(popupText, {permanent: true, direction: 'right'});
-                            }
-                            updateRouting();
-                        }
+                        let id = voi.id.toUpperCase();
+                        currentOnlineIds.push(id);
+                        
+                        let lat = parseFloat(voi.lat);
+                        let lon = parseFloat(voi.lon);
+                        while(lat > 90 || lat < -90) lat /= 10.0;
+                        while(lon > 180 || lon < -180) lon /= 10.0;
+                        
+                        lastKnownData[id] = { lat: lat, lon: lon, time: voi.time, status: 'online' };
                     });
-                    
-                    // XỬ LÝ KHI MẤT TÍN HIỆU
-                    if(!found) {
-                        if (targetLat !== null && targetLon !== null) {
-                            // Vẫn giữ lại Marker và tọa độ cũ, chỉ chuyển trạng thái sang cảnh báo mất sóng
-                            document.getElementById("distanceText").innerHTML = "MẤT TÍN HIỆU!";
-                            document.getElementById("distanceText").style.color = "#E74C3C";
-                            document.getElementById("lastSeenText").innerHTML = "⚠️ Vị trí đang hiển thị là Vị trí cuối cùng!";
-                            document.getElementById("lastSeenText").style.color = "#E74C3C";
-                        } else {
-                            document.getElementById("distanceText").innerHTML = "Chưa có tín hiệu Voi!";
-                            document.getElementById("distanceText").style.color = "#E74C3C";
+
+                    // Chuyển trạng thái những ai bị mất sóng sang Offline
+                    for (let id in lastKnownData) {
+                        if (!currentOnlineIds.includes(id)) {
+                            lastKnownData[id].status = 'offline';
                         }
-                    } else {
-                        // Tín hiệu bình thường
-                        document.getElementById("lastSeenText").innerHTML = `🕒 Tín hiệu cuối lúc: ${lastTimeText}`;
-                        document.getElementById("lastSeenText").style.color = "#2ECC71";
                     }
+                    updateMapAndList();
                 }
-            })
-            .catch(err => console.log(err));
+            }).catch(err => console.log(err));
         }
 
-        function updateRouting() {
-            if (myLat && myLon && targetLat && targetLon) {
-                const myPos = L.latLng(myLat, myLon);
-                const targetPos = L.latLng(targetLat, targetLon);
-                
-                const distance = Math.round(map.distance(myPos, targetPos));
-                
-                // Nếu khoảng cách vẫn được tính toán, chỉ cập nhật chữ nếu tín hiệu còn
-                const distanceElem = document.getElementById("distanceText");
-                if (distanceElem.innerHTML !== "MẤT TÍN HIỆU!") {
-                    distanceElem.innerHTML = `${distance} mét`;
-                    distanceElem.style.color = "#F1C40F";
+        function updateMapAndList() {
+            let htmlList = "";
+            let minDistance = Infinity;
+            closestTargetId = null;
+            let bounds = [];
+
+            if (myLat && myLon) bounds.push([myLat, myLon]);
+
+            for (let id in lastKnownData) {
+                let voi = lastKnownData[id];
+                let isOffline = voi.status === 'offline';
+                let popupText = `<b style="font-size:14px;">${id}</b><br>🕒 ${voi.time || 'Không rõ'}`;
+                if (isOffline) popupText += "<br><span style='color:red;'>⚠️ Vị trí cuối (Mất tín hiệu)</span>";
+
+                // 1. CẬP NHẬT MARKER BẢN ĐỒ
+                if(targetMarkers[id]) {
+                    targetMarkers[id].setLatLng([voi.lat, voi.lon]);
+                    targetMarkers[id].setTooltipContent(popupText);
+                    targetMarkers[id].setOpacity(isOffline ? 0.4 : 1.0);
+                } else {
+                    targetMarkers[id] = L.marker([voi.lat, voi.lon]).addTo(map);
+                    targetMarkers[id].bindTooltip(popupText, {permanent: true, direction: 'right'});
+                    if(isOffline) targetMarkers[id].setOpacity(0.4);
+                }
+                bounds.push([voi.lat, voi.lon]);
+
+                // 2. TÍNH KHOẢNG CÁCH VÀ TẠO DANH SÁCH
+                let distText = "Đang tính...";
+                if (myLat && myLon) {
+                    let dist = Math.round(map.distance([myLat, myLon], [voi.lat, voi.lon]));
+                    if (isOffline) {
+                        distText = `<span style='color:#E74C3C;'>${dist}m (Mất sóng)</span>`;
+                    } else {
+                        distText = `<span style='color:#F1C40F;'>${dist}m (Đang phát)</span>`;
+                        // Tìm người gần nhất để ghim La bàn
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            closestTargetId = id;
+                        }
+                    }
                 }
 
-                if (routingLine) { map.removeLayer(routingLine); }
-                routingLine = L.polyline([myPos, targetPos], {color: 'red', dashArray: '5, 5', weight: 3}).addTo(map);
-                
-                map.fitBounds(routingLine.getBounds(), {padding: [50, 50]});
+                htmlList += `<div class="list-item">
+                                <b style="color:${isOffline ? '#BDC3C7' : '#FFFFFF'}">${id}</b>: ${distText} <br>
+                                <span style="font-size:11px; color:#95A5A6;">🕒 Cập nhật: ${voi.time}</span>
+                             </div>`;
             }
+
+            if (Object.keys(lastKnownData).length === 0) {
+                htmlList = "<div style='color:#E74C3C;'>Chưa có nài voi nào trực tuyến...</div>";
+            }
+            document.getElementById("elephantList").innerHTML = htmlList;
+
+            // 3. VẼ ĐƯỜNG CHỈ DẪN ĐẾN NGƯỜI GẦN NHẤT
+            if (closestTargetId && myLat && myLon) {
+                let target = lastKnownData[closestTargetId];
+                if (routingLine) { map.removeLayer(routingLine); }
+                routingLine = L.polyline([[myLat, myLon], [target.lat, target.lon]], {color: '#F1C40F', dashArray: '5, 5', weight: 3}).addTo(map);
+                
+                if (isFirstFocus && bounds.length > 1) {
+                    map.fitBounds(bounds, {padding: [50, 50]});
+                    isFirstFocus = false;
+                }
+            } else if (!closestTargetId && routingLine) {
+                map.removeLayer(routingLine); routingLine = null;
+            }
+
+            if (lastOrientationEvent) handleOrientation(lastOrientationEvent);
         }
 
         function handleOrientation(event) {
-            if (!myLat || !targetLat) return; 
+            lastOrientationEvent = event;
+            if (!myLat || !closestTargetId || !lastKnownData[closestTargetId]) return; 
+            
+            let targetLat = lastKnownData[closestTargetId].lat;
+            let targetLon = lastKnownData[closestTargetId].lon;
+            
             let phoneHeading = event.webkitCompassHeading || Math.abs(event.alpha - 360); 
             
             const dLon = (targetLon - myLon) * Math.PI / 180;
@@ -413,27 +402,20 @@
         }
 
         function stopTracking() {
-            if (wakeLock !== null) {
-                wakeLock.release().then(() => { wakeLock = null; });
-            }
-
+            if (wakeLock !== null) wakeLock.release().then(() => { wakeLock = null; });
             if (watchId !== null) navigator.geolocation.clearWatch(watchId);
             if (fetchInterval !== null) clearInterval(fetchInterval);
             window.removeEventListener('deviceorientation', handleOrientation);
-            
             if (routingLine) { map.removeLayer(routingLine); routingLine = null; }
 
             document.getElementById("btnStartNai").style.display = "block";
             document.getElementById("btnStartGuide").style.display = "block";
-            
             document.getElementById("btnStopNai").style.display = "none";
             document.getElementById("btnStopGuide").style.display = "none";
-            
             document.getElementById("btnCamera").style.display = "none";
             document.getElementById("guideInfo").style.display = "none";
             
             document.getElementById("deviceId").disabled = false;
-            
             document.getElementById("cameraBox").src = "";
             document.getElementById("cameraBox").style.display = "none";
             document.getElementById("map").style.display = "block";
@@ -441,7 +423,7 @@
             document.getElementById("status").innerHTML = "🔴 Đã dừng thiết bị.";
             document.getElementById("status").style.color = "#E74C3C";
             
-            myLat = null; targetLat = null;
+            myLat = null; isFirstFocus = true;
         }
     </script>
 </body>
