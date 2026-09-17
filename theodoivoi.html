@@ -147,7 +147,7 @@
         let routingLine = null;
         let fetchInterval = null;
         let myLat = null, myLon = null;
-        let closestTargetId = null; // ID gần nhất để La bàn khóa mục tiêu
+        let closestTargetId = null; 
         let lastOrientationEvent = null;
         let isFirstFocus = true;
         let wakeLock = null;
@@ -179,10 +179,16 @@
                 document.getElementById("deviceId").style.display = "block";
                 document.getElementById("naiButtons").style.display = "block";
                 document.getElementById("guideButtons").style.display = "none";
+                
+                // TỰ ĐỘNG ĐIỀN LẠI TÊN ĐÃ LƯU TỪ LẦN TRƯỚC
+                const savedId = localStorage.getItem("savedNaiId");
+                if (savedId) {
+                    document.getElementById("deviceId").value = savedId;
+                }
             } else {
                 document.getElementById("panelTitle").innerHTML = "🧭 CHẾ ĐỘ HƯỚNG DẪN VIÊN";
                 document.getElementById("panelTitle").style.color = "#2980B9";
-                document.getElementById("deviceId").style.display = "none"; // Ẩn hoàn toàn ô nhập liệu
+                document.getElementById("deviceId").style.display = "none"; 
                 document.getElementById("guideButtons").style.display = "block";
                 document.getElementById("naiButtons").style.display = "none";
             }
@@ -195,7 +201,7 @@
             document.getElementById("roleSelection").style.display = "flex";
             document.getElementById("naiButtons").style.display = "none";
             document.getElementById("guideButtons").style.display = "none";
-            document.getElementById("deviceId").value = ""; 
+            // Không xóa value của deviceId nữa để giữ lại tên đang nhập
             currentRole = "";
         }
 
@@ -204,6 +210,9 @@
             const deviceId = document.getElementById("deviceId").value.trim().toUpperCase();
             if (!deviceId) { alert("Vui lòng nhập Tên hoặc Mã của bạn!"); return; }
             if (!navigator.geolocation) { alert("Điện thoại không hỗ trợ GPS."); return; }
+
+            // LƯU TÊN VÀO BỘ NHỚ THIẾT BỊ
+            localStorage.setItem("savedNaiId", deviceId);
 
             requestWakeLock();
             document.getElementById("btnStartNai").style.display = "none";
