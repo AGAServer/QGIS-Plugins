@@ -1,16 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
   <pyqgis_plugin name="DoanNgocAnPlugin" version="3.5">
-    <description>DoanNgocAnPlugin | Công cụ hỗ trợ tiện ích Kỹ Thuật Lâm Nghiệp.</description>
-    <about><![CDATA[<b>Thông tin tác giả và liên hệ:</b> Plugin được tạo bởi <b>Đoàn Ngọc Ấn</b><br>
-<b>Zalo:</b> 085.652.1139<br>
-<b>Facebook:</b> https://www.facebook.com/NgocAn.Digital.<br><br>
-<b>Miễn trừ trách nhiệm:</b> Plugin chỉ mang tiện ích hỗ trợ cho người dùng với hình thức là tham khảo, người dùng tự chịu trách nhiệm khi sử dụng các nội dung trong công cụ sai với mục đích sử dụng.]]></about>
+    <description>Bộ công cụ GIS &amp; Viễn thám chuyên sâu cho ngành Lâm nghiệp Việt Nam (Chuẩn VN-2000, Topology, Gộp lô, Ảnh vệ tinh &amp; Cảnh báo cháy rừng).</description>
+    <about><![CDATA[<b>DoanNgocAnPlugin</b> là bộ công cụ tiện ích kỹ thuật chuyên biệt dành cho lực lượng Kiểm lâm, Ban quản lý bảo vệ rừng, Công ty Lâm nghiệp và Kỹ sư Lâm sinh trên nền tảng QGIS Desktop.<br><br>
+<b>TÍNH NĂNG NỔI BẬT:</b><br>
+• <b>Hệ tọa độ VN-2000 (63 tỉnh/thành):</b> Chuyển đổi, tạo điểm/vùng từ tọa độ XY/GPS/Excel và đồng bộ bản đồ chuẩn xác.<br>
+• <b>Kiểm tra &amp; Làm sạch bản đồ (Topology Pro):</b> Sửa lỗi hình học, chồng lấn, khe hở, mảnh vụn, đường thừa kèm xem trước tương tác.<br>
+• <b>Gộp lô &amp; Cắt lớp không gian:</b> Gộp lô rừng thông minh theo tiểu khu/khoảnh/LDLR (gia quyền trữ lượng, xử lý mảnh nhỏ &lt; 0,3 ha) và 6 phép toán Overlay.<br>
+• <b>Viễn thám &amp; Giám sát cháy rừng:</b> Tải ảnh vệ tinh Sentinel-2 (kèm Chế độ Tăng cường ảnh), Landsat 8/9; quét cảnh báo cháy đa lớp và khoanh vùng vết cháy.<br>
+• <b>Biên tập &amp; Đồng bộ thực địa:</b> Chuẩn hóa dữ liệu lâm nghiệp, xuất báo cáo nhanh và đồng bộ hai chiều với ứng dụng ngoại tuyến <b>DNAPlugin (Android)</b>.<br><br>
+<b>THÔNG TIN TÁC GIẢ &amp; HỖ TRỢ KỸ THUẬT:</b><br>
+• <b>Tác giả:</b> Kỹ sư Đoàn Ngọc Ấn<br>
+• <b>Trang chủ:</b> <a href="https://www.dnaplugin.id.vn">https://www.dnaplugin.id.vn</a><br>
+• <b>Zalo hỗ trợ:</b> 085.652.1139 (+84856521139)<br>
+• <b>Group Zalo cộng đồng:</b> <a href="https://zalo.me/g/tqpvylgqn23umbnzdles">DNAPlugin - DoanNgocAnPlugin</a><br>
+• <b>Facebook cá nhân:</b> <a href="https://www.facebook.com/NgocAn.Digital/">https://www.facebook.com/NgocAn.Digital/</a><br>
+• <b>Group Facebook:</b> <a href="https://www.facebook.com/groups/197030321506227">Ứng dụng Công nghệ trong lĩnh vực Lâm nghiệp</a><br><br>
+<b>MIỄN TRỪ TRÁCH NHIỆM:</b><br>
+Công cụ được xây dựng nhằm hỗ trợ kỹ thuật, rút ngắn thời gian biên tập bản đồ và mang tính chất tham khảo nghiệp vụ. Trong quá trình xử lý dữ liệu không gian có thể phát sinh sai số nhất định; người dùng có trách nhiệm kiểm tra, đối chiếu thực địa trước khi ban hành hồ sơ chính thức và tự chịu trách nhiệm khi sử dụng kết quả sai mục đích.]]></about>
     <version>3.5</version>
-    <qgis_minimum_version>3.5</qgis_minimum_version>
-    <author_name>Đoàn Ngọc Ấn</author_name>
-    <tags>lam nghiep, ban do, qgis, vn2000, toa do, forestry, tao vung, tao diem, doanngocanplugin, doanngocan</tags>
+    <qgis_minimum_version>3.0</qgis_minimum_version>
+    <qgis_maximum_version>3.99</qgis_maximum_version>
+    <homepage>https://www.dnaplugin.id.vn</homepage>
+    <file_name>DoanNgocAnPlugin.zip</file_name>
     <icon>icon.png</icon>
+    <author_name>Đoàn Ngọc Ấn</author_name>
+    <uploaded_by>Đoàn Ngọc Ấn</uploaded_by>
     <download_url>https://github.com/AGAServer/QGIS-Plugins/releases/download/v1.0/DoanNgocAnPlugin.zip</download_url>
+    <experimental>False</experimental>
+    <deprecated>False</deprecated>
+    <tracker>https://zalo.me/g/tqpvylgqn23umbnzdles</tracker>
+    <repository>https://www.dnaplugin.id.vn</repository>
+    <tags>lam nghiep, ban do, qgis, vn2000, toa do, forestry, gop lo, cat lop, topology, sentinel2, chay rung, kiem lam, bao ve rung, tao vung, tao diem, dnaplugin, doanngocanplugin, doanngocan</tags>
+    <changelog>
+      <![CDATA[Phiên bản 3.5:
+• Nâng cấp Kiểm tra & Làm sạch bản đồ (Topology Pro) với 5 chế độ lỗi, bảng phóng tới lỗi và hoàn tác nhiều bước.
+• Nâng cấp Trạm tải ảnh vệ tinh Sentinel-2 tích hợp Chế độ Tăng cường ảnh, tự cân bằng màu khớp ảnh gốc và tự tương thích theo phiên bản QGIS.
+• Cải tiến Cảnh báo cháy rừng đa lớp chống treo máy, màn hình xem trước với biểu tượng đốm lửa và đồng bộ hệ tọa độ VN-2000.
+• Tối ưu tốc độ mở công cụ Gộp lô rừng và cập nhật trung tâm kết nối tác giả/cộng đồng.]]></changelog>
   </pyqgis_plugin>
 </plugins>
