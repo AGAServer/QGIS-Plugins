@@ -27,6 +27,7 @@ Công cụ được xây dựng nhằm hỗ trợ kỹ thuật, rút ngắn th�
     <author_name>Đoàn Ngọc Ấn</author_name>
     <uploaded_by>Đoàn Ngọc Ấn</uploaded_by>
     <download_url>https://github.com/AGAServer/QGIS-Plugins/releases/download/v1.0/DoanNgocAnPlugin.zip</download_url>
+    <qgis_ltr_url>https://download.osgeo.org/qgis/windows/QGIS-OSGeo4W-3.40.14-1.msi</qgis_ltr_url>
     <experimental>False</experimental>
     <deprecated>False</deprecated>
     <tracker>https://zalo.me/g/tqpvylgqn23umbnzdles</tracker>
